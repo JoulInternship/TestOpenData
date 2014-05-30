@@ -1,0 +1,66 @@
+<html>
+    <head>
+
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+        <title>GTFS To ZenBus</title>
+        
+        <link href="http://bootswatch.com/flatly/bootstrap.min.css" rel="stylesheet">
+        <link href="styles/content.css" rel="stylesheet">
+
+    </head>
+    
+    <body ng-app="gtfsToZenBus">
+        
+        <ng-progress progress="loading"></ng-progress>
+        
+        <div class="nav navbar-default">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#/">GTFS To ZenBus</a>
+            </div>
+            <!-- <div class="navbar-collapse collapse navbar-responsive-collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="#/user">Me</a></li>
+
+                </ul>
+            </div> -->
+        </div>
+
+        <div class="container pb4">
+            
+            <div class="row" ng-view>
+            </div>
+
+            <div id="map-canvas"></div>
+
+        </div>
+
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src="styles/bootstrap/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/lib/csvjson.js"></script>
+
+        <script type="text/javascript" src="js/lib/angular-file-upload-shim.min.js"></script>
+
+        <script type="text/javascript" src="js/lib/angular.min.js"></script>
+        <script type="text/javascript" src="js/lib/angular-route.min.js"></script>
+        <script type="text/javascript" src="js/lib/angular-file-upload.min.js"></script>
+
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyAu1H4QAw3wf9mHYye1TG5YdbG0MRLjICc&sensor=false"></script>
+
+        <script type="text/javascript" src="js/app.js"></script>
+
+        <script type="text/javascript" src="js/controllers/homeController.js"></script>
+        
+        <script type="text/javascript" src="js/services/parsingService.js"></script>
+        
+        <script type="text/javascript" src="js/directives/progress.js"></script>
+
+
+    </body>
+</html>

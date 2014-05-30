@@ -1,0 +1,16 @@
+
+#Example
+war/example
+
+#Node modules
+war/node_modules
+
+#SASS
+war/.sache-cache/
+war/.sass-cache/7aab5fde33238f8cf5cad7f2af03fe9b741268cd/base.scssc
+war/.sass-cache/7aab5fde33238f8cf5cad7f2af03fe9b741268cd/blocks.scssc
+war/.sass-cache/7aab5fde33238f8cf5cad7f2af03fe9b741268cd/content.scssc
+
+war/WEB-INF/lib/*jar
+
+war/WEB-INF/classes
