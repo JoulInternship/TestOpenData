@@ -1,9 +1,0 @@
-
-#Example files
-war/example/
-
-#Node_modules
-war/node_modules/
-
-#Sass
-war/.sache-cache/
