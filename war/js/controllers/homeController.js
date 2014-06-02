@@ -24,12 +24,15 @@
 
             var routes = null;
             var shapes = null;
-            var trips  = null;
+            var stopTimes  = null;
+            var stops = null;
+            var trips = null;
 
             var reader = new FileReader();
 
 
             var onProgress = function (e) {
+
                 $rootScope.loading = e.loaded / e.total * 100;
             };
 
@@ -38,7 +41,9 @@
 
                 routes = files[3];
                 shapes = files[4];
-                trips  = files[7];
+                stopTimes = files[5];
+                stops = files[6];
+                trips = files[7];
 
                 reader.readAsText(routes);
 
@@ -73,12 +78,18 @@
 
                 $scope.step = 3;
 
+                $rootScope.loading = 100;
+
                 //Read trips first
                 reader.readAsText(trips);
 
                 reader.onprogress = onProgress;
 
                 reader.onloadend = function (e) {
+
+                    /**
+                     * On va chercher les trips
+                     */
 
                     var tripsTxt = e.target.result;
 
@@ -87,37 +98,71 @@
 
                     reader.onloadend = function (e) {
 
-                        $rootScope.loading = 100;
-
                         var shapesTxt = e.target.result;
 
-                        parsingService.getShapes(id, tripsTxt, shapesTxt, function (myShapes) {
 
-                            console.log(myShapes);
+                        reader.readAsText(stopTimes);
 
-                            $scope.$apply(function () {
+                        reader.onloadend = function (e) {
 
-                                $rootScope.loading = 0;
+                            var stopTimesTxt = e.target.result;
 
-                                var i,
-                                    flightPlanCoordinates = [];
 
-                                for (i = 0; i < myShapes[954189].length; i++) {
-                                    flightPlanCoordinates.push(new google.maps.LatLng(myShapes[954189][i].latitude, myShapes[954189][i].longitude));
-                                }
+                            reader.readAsText(stops);
 
-                                var flightPath = new google.maps.Polyline({
-                                    path: flightPlanCoordinates,
-                                    geodesic: true,
-                                    strokeColor: '#FF0000',
-                                    strokeOpacity: 1.0,
-                                    strokeWeight: 2
+                            reader.onloadend = function (e) {
+
+                                var stopsTxt = e.target.result;
+
+
+                                parsingService.getShapesAndStops(id, tripsTxt, shapesTxt, stopTimesTxt, stopsTxt, function (myShapes, myStops) {
+
+                                    $scope.$apply(function () {
+
+                                        $scope.shapes = myShapes;
+
+                                        var i,
+                                            flightPlanCoordinates = [];
+
+                                        //Shape
+                                        for (i = 0; i < myShapes[954189].length; i++) {
+                                            flightPlanCoordinates.push(new google.maps.LatLng(myShapes[954189][i].latitude, myShapes[954189][i].longitude));
+                                        }
+
+                                        var flightPath = new google.maps.Polyline({
+                                            path: flightPlanCoordinates,
+                                            geodesic: true,
+                                            strokeColor: '#FF0000',
+                                            strokeOpacity: 1.0,
+                                            strokeWeight: 2
+                                        });
+
+                                        flightPath.setMap(window.map);
+
+                                        //Markers
+                                        var currentStop = null;
+                                        var marker;
+                                        for (i = 0; i < myStops.length; i++) {
+
+                                            currentStop = myStops[i];
+
+                                            marker = new google.maps.Marker({
+                                                position: new google.maps.LatLng(currentStop.latitude, currentStop.longitude),
+                                                title: currentStop.name
+                                            });
+
+                                            marker.setMap(window.map);
+                                        }
+
+                                        $rootScope.loading = 0;
+
+                                    });
+
+
                                 });
+                            };
 
-                                flightPath.setMap(window.map);
-
-                            });
-                        });
+                        };
                     };
                 };
 
