@@ -1,4 +1,4 @@
-/*global csvjson */
+/*global csvjson, FileReader */
 (function () {
 
     'use strict';
@@ -6,6 +6,7 @@
 
     window.app.factory('parsingService', [function () {
 
+        var reader = new FileReader();
 
         var parseCSV = function (txt) {
 
@@ -20,30 +21,51 @@
             return array.indexOf(elem) > -1 ? true : false;
         };
 
-        return {
+        var loadTxt = function (txt, callback) {
 
-            /**
-             * getRows
-             *
-             * return row from csv
-             * 
-             * @param  {String} txt 
-             * @return {Array}     
-             */
-            getRows: function (txt, callback) {
+            reader.readAsText(txt);
+            reader.onloadend = callback;
+        };
 
-                var result = parseCSV(txt);
+        /**
+         * getRows
+         *
+         * return row from csv
+         * 
+         * @param  {String} txt 
+         * @return {Array}     
+         */
+        var getRows = function (txt, callback) {
 
+            loadTxt(txt, function (e) {
+
+                var csv = e.target.result;
+
+                var result = parseCSV(csv);
                 callback(result.rows);
 
+            });
+
+        };
+
+
+        return {
+
+            routes : null,
+            shapes : null,
+            stopTimes : null,
+            stops : null,
+            trips : null,
+
+            getRoutes : function (callback) {
+                getRows(this.routes, callback);
             },
 
-
-            getShapesAndStops: function (routeId, tripsTxt, shapesTxt, stopTimesTxt, stopsTxt, callback) {
+            getShapesAndStops: function (routeId, callback) {
 
                 var that = this;
 
-                that.getRows(tripsTxt, function (trips) {
+                getRows(that.trips, function (trips) {
 
                     var routeTrips = $.grep(trips, function (elem) {
 
@@ -75,12 +97,13 @@
 
                     }
 
+
                     var myShapes = {},
                         myStopsIds  = [],
                         myStops = [];
 
                     //Get Shapes
-                    that.getRows(shapesTxt, function (shapes) {
+                    getRows(that.shapes, function (shapes) {
 
                         var shapesTemp = $.grep(shapes, function (elem) {
                             return shapeList.indexOf(elem.shape_id) > -1;
@@ -91,65 +114,62 @@
                             myShapes[shapeList[i]] = [];
                         }
 
+                        var shape = shapeList[i];
                         for (i = 0; i < shapesTemp.length; i++) {
-                            myShapes[shapesTemp[i].shape_id].push({
-                                latitude : shapesTemp[i].shape_pt_lat,
-                                longitude : shapesTemp[i].shape_pt_lon
+                            shape = shapesTemp[i];
+                            myShapes[shape.shape_id].push({
+                                latitude : shape.shape_pt_lat,
+                                longitude : shape.shape_pt_lon
                             });
                         }
 
-                    });
+                        //Get stops id
+                        getRows(that.stopTimes, function (stopTimes) {
 
+                            var stopsIdTemp = $.grep(stopTimes, function (elem) {
+                                return tripList.indexOf(elem.trip_id) > -1;
+                            });
 
-                    //Get stops id
-                    that.getRows(stopTimesTxt, function (stopTimes) {
+                            var stopIdTemp = null;
 
-                        var stopsIdTemp = $.grep(stopTimes, function (elem) {
-                            return tripList.indexOf(elem.trip_id) > -1;
-                        });
+                            for (i = 0; i < stopsIdTemp.length; i++) {
 
-                        var stopIdTemp = null;
+                                stopIdTemp = stopsIdTemp[i].stop_id;
 
-                        for (i = 0; i < stopsIdTemp.length; i++) {
-
-                            stopIdTemp = stopsIdTemp[i].stop_id;
-
-                            if (!inArray(myStopsIds, stopIdTemp)) {
-                                myStopsIds.push(stopIdTemp);
+                                if (!inArray(myStopsIds, stopIdTemp)) {
+                                    myStopsIds.push(stopIdTemp);
+                                }
                             }
-                        }
 
-                        //console.log(myStopsIds);
+                            //Get stops
+                            getRows(that.stops, function (stops) {
 
-                    });
-
-                    //Get stops
-                    that.getRows(stopsTxt, function (stops) {
-
-                        var stopsTemp = $.grep(stops, function (elem) {
-                            return myStopsIds.indexOf(elem.stop_id) > -1;
-                        });
-
-                        var stop = null;
-
-                        for (i = 0; i < stopsTemp.length; i++) {
-
-                            stop = stopsTemp[i];
-
-                            if (!inArray(myStops, stop)) {
-                                myStops.push({
-                                    id: stop.stop_id,
-                                    latitude: stop.stop_lat,
-                                    longitude: stop.stop_lon,
-                                    name: stop.stop_name
+                                var stopsTemp = $.grep(stops, function (elem) {
+                                    return myStopsIds.indexOf(elem.stop_id) > -1;
                                 });
-                            }
-                        }
 
+                                var stop = null;
+
+                                for (i = 0; i < stopsTemp.length; i++) {
+
+                                    stop = stopsTemp[i];
+
+                                    if (!inArray(myStops, stop)) {
+                                        myStops.push({
+                                            id: stop.stop_id,
+                                            latitude: stop.stop_lat,
+                                            longitude: stop.stop_lon,
+                                            name: stop.stop_name
+                                        });
+                                    }
+                                }
+
+                                callback(myShapes, myStops);
+
+                            });
+
+                        });
                     });
-
-                    callback(myShapes, myStops);
-
 
                 });
 

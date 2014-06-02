@@ -1,4 +1,4 @@
-/*global FileReader, google*/
+/*global google*/
 (function () {
 
     'use strict';
@@ -7,164 +7,140 @@
         '$rootScope',
         '$scope',
         'parsingService',
-        function ($rootScope, $scope, parsingService) {
+        'userService',
+        function ($rootScope, $scope, parsingService, userService) {
 
+            //Init Google map
             $scope.map = {
                 draggable: "true",
                 center: {
                     latitude: 47.2212352,
                     longitude: -1.5644707
                 },
-                zoom: 4,
+                zoom: 6,
                 polylines: []
             };
 
 
-            $scope.step = 1;
+            var randomColor = function () {
+                return '#' + Math.floor(Math.random() * 16777215).toString(16);
+            };
 
-            var routes = null;
-            var shapes = null;
-            var stopTimes  = null;
-            var stops = null;
-            var trips = null;
+            var makePath = function (arr) {
 
-            var reader = new FileReader();
+                var paths = [];
 
+                var i,
+                    p;
+                for (i = 0; i < arr.length; i++) {
 
-            var onProgress = function (e) {
+                    p = new google.maps.LatLng(arr[i].latitude, arr[i].longitude);
+                    paths.push(p);
+                }
 
-                $rootScope.loading = e.loaded / e.total * 100;
+                return paths;
+
+            };
+
+            var drawShape = function (paths) {
+
+                console.log(paths);
+
+                var flightPath = new google.maps.Polyline({
+                    path: paths,
+                    geodesic: true,
+                    strokeColor: randomColor(),
+                    strokeOpacity: 1.0,
+                    strokeWeight: 2
+                });
+
+                console.log(flightPath);
+                flightPath.setMap(window.map);
+            };
+
+            var drawMarker = function (name, latitude, longitude) {
+
+                var marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(latitude, longitude),
+                    title: name
+                });
+
+                marker.setMap(window.map);
             };
 
 
+
+            $scope.step = 1;
+
+            //User loaded files
             $scope.onFileSelect = function (files) {
 
-                routes = files[3];
-                shapes = files[4];
-                stopTimes = files[5];
-                stops = files[6];
-                trips = files[7];
+                parsingService.routes = files[3];
+                parsingService.shapes = files[4];
+                parsingService.stopTimes = files[5];
+                parsingService.stops = files[6];
+                parsingService.trips = files[7];
 
-                reader.readAsText(routes);
-
-
-                reader.onprogress = onProgress;
-
-                reader.onloadend = function (e) {
+                parsingService.getRoutes(function (routes) {
 
                     $rootScope.loading = 100;
 
-                    var txt = e.target.result;
+                    $scope.$apply(function () {
 
-                    parsingService.getRows(txt, function (routes) {
-
-                        $scope.$apply(function () {
-
-                            $scope.step = 2;
-                            $scope.routes = routes;
-                            $rootScope.loading = 0;
-
-                            console.log(routes);
-
-                        });
+                        $scope.step = 2;
+                        $scope.routes = routes;
+                        $rootScope.loading = 0;
 
                     });
-                };
+
+                });
 
             };
 
-
+            //Route selected
             $scope.onRouteSelected = function (id) {
 
                 $scope.step = 3;
 
                 $rootScope.loading = 100;
 
-                //Read trips first
-                reader.readAsText(trips);
+                //Show shapes and stops
+                parsingService.getShapesAndStops(id, function (shapes, stops) {
 
-                reader.onprogress = onProgress;
+                    $scope.$apply(function () {
 
-                reader.onloadend = function (e) {
+                        $scope.shapes = shapes;
 
-                    /**
-                     * On va chercher les trips
-                     */
+                        var i;
 
-                    var tripsTxt = e.target.result;
+                        console.log(shapes);
 
-                    //And then shapes
-                    reader.readAsText(shapes);
+                        //Draw shapes
+                        var shapeId = null;
+                        for (shapeId in shapes) {
 
-                    reader.onloadend = function (e) {
+                            if (shapes.hasOwnProperty(shapeId)) {
 
-                        var shapesTxt = e.target.result;
+                                drawShape(makePath(shapes[shapeId]));
+                            }
 
+                        }
 
-                        reader.readAsText(stopTimes);
+                        //Markers
+                        var currentStop = null;
+                        for (i = 0; i < stops.length; i++) {
 
-                        reader.onloadend = function (e) {
+                            currentStop = stops[i];
 
-                            var stopTimesTxt = e.target.result;
-
-
-                            reader.readAsText(stops);
-
-                            reader.onloadend = function (e) {
-
-                                var stopsTxt = e.target.result;
+                            drawMarker(currentStop.name, currentStop.latitude, currentStop.longitude);
+                        }
 
 
-                                parsingService.getShapesAndStops(id, tripsTxt, shapesTxt, stopTimesTxt, stopsTxt, function (myShapes, myStops) {
+                        $rootScope.loading = 0;
 
-                                    $scope.$apply(function () {
+                    });
 
-                                        $scope.shapes = myShapes;
-
-                                        var i,
-                                            flightPlanCoordinates = [];
-
-                                        //Shape
-                                        for (i = 0; i < myShapes[954189].length; i++) {
-                                            flightPlanCoordinates.push(new google.maps.LatLng(myShapes[954189][i].latitude, myShapes[954189][i].longitude));
-                                        }
-
-                                        var flightPath = new google.maps.Polyline({
-                                            path: flightPlanCoordinates,
-                                            geodesic: true,
-                                            strokeColor: '#FF0000',
-                                            strokeOpacity: 1.0,
-                                            strokeWeight: 2
-                                        });
-
-                                        flightPath.setMap(window.map);
-
-                                        //Markers
-                                        var currentStop = null;
-                                        var marker;
-                                        for (i = 0; i < myStops.length; i++) {
-
-                                            currentStop = myStops[i];
-
-                                            marker = new google.maps.Marker({
-                                                position: new google.maps.LatLng(currentStop.latitude, currentStop.longitude),
-                                                title: currentStop.name
-                                            });
-
-                                            marker.setMap(window.map);
-                                        }
-
-                                        $rootScope.loading = 0;
-
-                                    });
-
-
-                                });
-                            };
-
-                        };
-                    };
-                };
+                });
 
             };
 
