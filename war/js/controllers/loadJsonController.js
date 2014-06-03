@@ -5,7 +5,8 @@
 
     window.app.controller("loadJsonController", [
         '$scope',
-        function ($scope) {
+        'zenbusService',
+        function ($scope, zenbusService) {
 
             var reader = new FileReader();
 
@@ -18,8 +19,7 @@
 
                     var json = e.target.result;
 
-                    console.log(JSON.parse(json));
-
+                    zenbusService.sendData(JSON.parse(json));
 
                 };
             };
