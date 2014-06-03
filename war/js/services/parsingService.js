@@ -82,10 +82,8 @@
 
                     for (i = 0; i < max; i++) {
 
-                        //TODO : see how to prevent csv2json to create "shape_id" key and not shape_id
                         shapeId = routeTrips[i].shape_id;
                         tripId = routeTrips[i].trip_id;
-
 
                         if (!inArray(shapeList, shapeId)) {
                             shapeList.push(shapeId);
