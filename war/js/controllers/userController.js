@@ -2,16 +2,27 @@
 
     'use strict';
 
-    window.app.controller('userController', ['userService', '$scope', function (userService, $scope) {
+    window.app.controller('userController', [
+        'userService',
+        '$scope',
+        '$rootScope',
+        function (userService, $scope, $rootScope) {
 
-        //Zenbus url
-        $scope.url = userService.url;
+            $scope.urlPush = userService.urlPush;
+            $scope.uri = userService.uri;
+            $scope.networkName = userService.networkName;
 
-        $scope.updateUrl = function () {
-            userService.url = $scope.url;
-        };
+            $scope.update = function () {
 
-    }]);
+                userService.urlPush = $scope.urlPush;
+                userService.uri = $scope.uri;
+                userService.networkName = $scope.networkName;
+
+                $rootScope.step = 1;
+            };
+
+        }
+    ]);
 
 
 }());

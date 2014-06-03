@@ -4,7 +4,9 @@
 
     window.app.factory('userService', function () {
         return {
-            url : "yoooo"
+            urlPush : "urlPush",
+            uri : "semitanTest",
+            networkName: "tan"
         };
     });
 
