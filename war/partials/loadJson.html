@@ -1,0 +1,16 @@
+<div class="col-xs-12">
+    
+    <div class="row">
+        <h1 class="col-xs-12">Import JSON</h1>
+        <div class="col-xs-12 mb2">
+            <label for="files">Fichier json : </label>
+            <input id="files" type="file" ng-file-select="onFileSelect($files)">
+        </div>
+        <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="hover" class="dropZone col-xs-12">
+            <p class="inline h3">Ou glissez le fichier ici</p>
+            <div class="inline h100"></div>
+        </div>
+
+    </div>
+
+</div>

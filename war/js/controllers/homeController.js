@@ -12,15 +12,18 @@
         function ($rootScope, $scope, parsingService, userService, zenbusService) {
 
             //Init Google map
-            $scope.map = {
-                draggable: "true",
-                center: {
-                    latitude: 47.2212352,
-                    longitude: -1.5644707
-                },
-                zoom: 14,
-                polylines: []
+
+            var initialize = function () {
+                var mapOptions = {
+                    center: new google.maps.LatLng(47.2212352, -1.5644707),
+                    zoom: 12
+                };
+
+                console.log(document.getElementById("map-canvas"));
+                window.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
             };
+
+            initialize();
 
 
             var randomColor = function () {
