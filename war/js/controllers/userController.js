@@ -2,7 +2,7 @@
 
     'use strict';
 
-    window.app.cotroller('userController', ['userService', function (userService) {
+    window.app.controller('userController', ['userService', '$scope', function (userService, $scope) {
 
         //Zenbus url
         $scope.url = userService.url;

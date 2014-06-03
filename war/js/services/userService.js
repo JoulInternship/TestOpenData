@@ -4,7 +4,7 @@
 
     window.app.factory('userService', function () {
         return {
-            url : null
+            url : "yoooo"
         };
     });
 

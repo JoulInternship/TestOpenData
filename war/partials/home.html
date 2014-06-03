@@ -2,12 +2,29 @@
 
     <div class="row">
 
-        <h1 class="col-xs-12">1- Import des fichiers</h1>
-        
-        <div class="col-xs-12 mb2">
-            <label for="files">Fichiers: </label>
-            <input id="files" type="file" ng-file-select="onFileSelect($files)" multiple>
+        <div class="col-xs-6">
+            
+            <h1 class="col-xs-12">1- Import des fichiers</h1>
+            
+            <div class="col-xs-12 mb2">
+                <label for="files">Fichiers: </label>
+                <input id="files" type="file" ng-file-select="onFileSelect($files)" multiple>
+            </div>
+
         </div>
+
+        <div class="col-xs-6 mt2" ng-controller="userController">
+            
+            <label for="url">Zenbus url :</label>
+            <div class="input-group">
+                <input type="text" class="form-control" ng-model="url">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" ng-click="updateUrl()">Update</button>
+                </span>
+            </div>
+
+        </div>
+
 
         <div class="col-xs-12 mb2 taCenter" ng-show="dropSupported">
             <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="hover" class="dropZone w100">
