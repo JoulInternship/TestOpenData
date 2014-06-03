@@ -17,7 +17,7 @@
                     latitude: 47.2212352,
                     longitude: -1.5644707
                 },
-                zoom: 6,
+                zoom: 14,
                 polylines: []
             };
 
@@ -44,8 +44,6 @@
 
             var drawShape = function (paths) {
 
-                console.log(paths);
-
                 var flightPath = new google.maps.Polyline({
                     path: paths,
                     geodesic: true,
@@ -54,7 +52,6 @@
                     strokeWeight: 2
                 });
 
-                console.log(flightPath);
                 flightPath.setMap(window.map);
             };
 
@@ -113,8 +110,6 @@
 
                         var i;
 
-                        console.log(shapes);
-
                         //Draw shapes
                         var shapeId = null;
                         for (shapeId in shapes) {
@@ -135,8 +130,10 @@
                             drawMarker(currentStop.name, currentStop.latitude, currentStop.longitude);
                         }
 
-
                         $rootScope.loading = 0;
+
+                        console.log(shapes);
+                        console.log(stops);
 
                     });
 
