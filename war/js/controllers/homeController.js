@@ -19,7 +19,6 @@
                     zoom: 12
                 };
 
-                console.log(document.getElementById("map-canvas"));
                 window.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
             };
 

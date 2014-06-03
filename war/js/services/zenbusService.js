@@ -8,85 +8,96 @@
         'userService',
         function ($resource, userService) {
 
+            //Make a string lower and without accent
             var lowerString = function (str) {
                 return window.latinize(str.toLowerCase());
             };
 
-            /*var resource = $resource(
-                userService.url,
+            /**
+             * saveFile
+             *
+             * Just a tool to save json that will be send to server
+             * 
+             * @param  {String} filename 
+             * @param  {String} text     
+             */
+            var saveFile = function (filename, text) {
+                var pom = document.createElement('a');
+                pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                pom.setAttribute('download', filename);
+                pom.click();
+            };
+
+            //Angular ngResource
+            var resource = $resource(
+                userService.urlPush,
                 null,
                 {
                     push : {
                         method: "PUT"
                     }
                 }
-            );*/
+            );
 
             return {
 
-                saveFile : function (filename, text) {
-                    var pom = document.createElement('a');
-                    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-                    pom.setAttribute('download', filename);
-                    pom.click();
-                },
+                /**
+                 * sendGTFS
+                 *
+                 * Work with GTFS data and send them to server
+                 * 
+                 * @param  {string} routeId    Will be use for uri
+                 * 
+                 * @param  {object} shapesGTFS example :
+                 *
+                    {
+                        954189 : [{
+                            latitude: ,
+                            longitude: 
+                        },
+                        {
+                            latitude: ,
+                            longitude: 
+                        }],
+                        shapeID : [...],        //remplacer "shapeID" par "uri"
 
+                    }
+                 *
+                 * @param  {array} stopsGTFS  example :
+                 
+                    [
+                        {
+                            id: "StopPoint:APER1",      //remplacer "id“ par "uri" 
+                            name: "Ampère",
+                            latitude: ,
+                            longitude: ,
+                        },
+                        ...
+                    ]
+                 * 
+                 */
                 sendGTFS : function (routeId, shapesGTFS, stopsGTFS) {
 
                     /**
-                     * ShapesGTFS
-                     *
-                        {
-                            954189 : [{
-                                latitude: ,
-                                longitude: 
-                            },
-                            {
-                                latitude: ,
-                                longitude: 
-                            }],
-                            shapeID : [...],        //remplacer "shapeID" par "uri"
-
-                        }
-                     */
-
-                     /**
-                      * stopsGTFS
-                      *
-                        [
-                            {
-                                id: "StopPoint:APER1",      //remplacer "id“ par "uri" 
-                                name: "Ampère",
-                                latitude: ,
-                                longitude: ,
-                            },
-                            ...
-                        ]
-                      */
-
-                    /**
-                     * Créer un tableau d'arrêts
+                     * Array of POIS
                      *
                         var pois = [{
-                            uri: ,      //on a un id
+                            uri: ,      
                             name: ,     //ok
-                            desc: ,     //vide
+                            desc: ,     //stay empty
                             latitude: , //ok
                             longitude:  //ok
                         }]
                      */
 
                     /**
-                     * Créer un shape
-                     *
-                     * On a un id gtfs
+                     * Array of shapes
                      * 
                         var shapes = [{
-                            uri: ,  //on a un id
-                            name: , //vide
-                            meta: , //vide
+                            uri: ,  
+                            name: , //empty
+                            meta: , //empty
 
-                            //Les points du shapes
                             points : [{
                                 latitude: , //ok
                                 longitude:   //ok
@@ -95,7 +106,6 @@
                      */
 
                     var startUri = lowerString(userService.uri) + ":" + lowerString(userService.networkName);
-
 
                     var shapes = $.map(shapesGTFS, function (item, key) {
 
@@ -107,8 +117,6 @@
 
                     });
 
-
-
                     var pois = $.map(stopsGTFS, function (item, index) {
                         item.uri = startUri + ":stop:" + lowerString(item.name);
                         delete item.id;
@@ -116,35 +124,43 @@
                         return item;
                     });
 
-
-
                     var data = {
                         shapes: shapes,
                         pois: pois
                     };
 
-                    this.saveFile('data.json', JSON.stringify(data));
+                    saveFile('data.json', JSON.stringify(data));
 
                     this.sendData(data);
 
-
-                    /**
-                     * Objet final
-                     *
-                        var data = {
-                            account : , //tjrs envoyé, à virer ?
-                            mission : , //tjrs envoyé, à virer ? (pb du pois  [{poisURI : value}] ???)
-
-                            shapes : shapes,
-                            pois : pois
-                        }
-                     */
-
                 },
 
+
+                /**
+                 * sendData
+                 *
+                 * Envoi data au serveur
+                 *
+                 * @params {object} data
+                 *
+                    var data = {
+                        account : , //tjrs envoyé, à virer ?
+                        mission : , //tjrs envoyé, à virer ? (pb du pois  [{poisURI : value}] ???)
+
+                        shapes : shapes,
+                        pois : pois
+                    }
+                 */
                 sendData : function (data) {
 
                     console.log(data);
+
+                    resource.push(null, data, function (value, responseHeaders) {
+
+                        console.log("Data envoyée", value);
+                        console.log("responseHeaders", responseHeaders);
+
+                    });
 
                 }
 
