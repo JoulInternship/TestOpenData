@@ -4,13 +4,20 @@
         <h1 class="col-xs-12">Import JSON</h1>
         <div class="col-xs-12 mb2">
             <label for="files">Fichier json : </label>
-            <input id="files" type="file" ng-file-select="onFileSelect($files)">
+            <input id="files" type="file" ng-file-select="onFileSelect($files)" multiple>
         </div>
-        <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="hover" class="dropZone col-xs-12">
-            <p class="inline h3">Ou glissez le fichier ici</p>
-            <div class="inline h100"></div>
+        
+        <div class="col-xs-12 mb2 taCenter" ng-show="dropSupported">
+            <div ng-file-drop="onFileSelect($files)" ng-file-drag-over-class="hover" class="dropZone w100">
+                <p class="inline h3">Ou glissez les fichiers ici</p>
+                <div class="inline h100"></div>
+            </div>
         </div>
+        
+        <div ng-file-drop-available="dropSupported=true" ng-show="!dropSupported">HTML5 Drop File is not supported!</div>            
 
     </div>
+
+    <hr>
 
 </div>

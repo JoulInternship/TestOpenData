@@ -1,4 +1,4 @@
-/*global reader*/
+/*global FileReader*/
 (function () {
 
     'use strict';
@@ -7,16 +7,19 @@
         '$scope',
         function ($scope) {
 
-            $scope.onFileSelect = function (files) {
+            var reader = new FileReader();
 
-                console.log(files);
+            $scope.onFileSelect = function (files) {
 
                 var jsonFile = files[0];
 
                 reader.readAsText(jsonFile);
-                reader.onloadend = function (json) {
+                reader.onloadend = function (e) {
 
-                    console.log(json);
+                    var json = e.target.result;
+
+                    console.log(JSON.parse(json));
+
 
                 };
             };
