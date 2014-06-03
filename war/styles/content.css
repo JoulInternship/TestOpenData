@@ -2244,4 +2244,8 @@ html, body {
 #map-canvas {
   height: 600px; }
 
+#map-canvas.full {
+  width: 100%;
+  height: 100%; }
+
 /*# sourceMappingURL=content.css.map */
