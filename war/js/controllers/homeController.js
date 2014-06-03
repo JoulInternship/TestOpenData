@@ -8,7 +8,8 @@
         '$scope',
         'parsingService',
         'userService',
-        function ($rootScope, $scope, parsingService, userService) {
+        'zenbusService',
+        function ($rootScope, $scope, parsingService, userService, zenbusService) {
 
             //Init Google map
             $scope.map = {
@@ -67,7 +68,7 @@
 
 
 
-            $scope.step = 1;
+            $rootScope.step = 0;
 
             //User loaded files
             $scope.onFileSelect = function (files) {
@@ -84,7 +85,7 @@
 
                     $scope.$apply(function () {
 
-                        $scope.step = 2;
+                        $rootScope.step = 2;
                         $scope.routes = routes;
                         $rootScope.loading = 0;
 
@@ -95,14 +96,14 @@
             };
 
             //Route selected
-            $scope.onRouteSelected = function (id) {
+            $scope.onRouteSelected = function (routeId) {
 
-                $scope.step = 3;
+                $rootScope.step = 3;
 
                 $rootScope.loading = 100;
 
                 //Show shapes and stops
-                parsingService.getShapesAndStops(id, function (shapes, stops) {
+                parsingService.getShapesAndStops(routeId, function (shapes, stops) {
 
                     $scope.$apply(function () {
 
@@ -132,15 +133,15 @@
 
                         $rootScope.loading = 0;
 
-                        console.log(shapes);
-                        console.log(stops);
+                        console.log("Log before sendGTFS");
+
+                        zenbusService.sendGTFS(routeId, shapes, stops);
 
                     });
 
                 });
 
             };
-
         }
     ]);
 
