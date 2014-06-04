@@ -143,6 +143,8 @@
                  */
                 sendData : function (data) {
 
+                    console.log(data);
+
                     //Angular ngResource
                     var resource = $resource(
                         userService.get('urlPush'),
