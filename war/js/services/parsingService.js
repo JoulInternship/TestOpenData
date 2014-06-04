@@ -158,7 +158,8 @@
                                             id: stop.stop_id,
                                             latitude: stop.stop_lat,
                                             longitude: stop.stop_lon,
-                                            name: stop.stop_name
+                                            name: stop.stop_name,
+                                            desc: ""
                                         });
                                     }
                                 }
