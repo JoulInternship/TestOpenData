@@ -4,7 +4,7 @@
 
     window.app.factory('userService', function () {
         return {
-            urlPush : "urlPush",
+            urlPush : "http://trailmatcher.appspot.com/zenbus/dashboard/api/beta/semitanTest",
             uri : "semitanTest",
             networkName: "tan"
         };
