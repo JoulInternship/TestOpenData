@@ -143,8 +143,6 @@
                  */
                 sendData : function (data) {
 
-                    console.log(data);
-
                     //Angular ngResource
                     var resource = $resource(
                         userService.urlPush,
@@ -158,8 +156,7 @@
 
                     resource.push(null, data, function (value, responseHeaders) {
 
-                        console.log("Data envoyée", value);
-                        console.log("responseHeaders", responseHeaders);
+                        console.log("Data send", value);
 
                     });
 
