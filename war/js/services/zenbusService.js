@@ -129,13 +129,12 @@
                 /**
                  * sendData
                  *
-                 * Envoi data au serveur
+                 * Send data
                  *
                  * @params {object} data
                  *
                     var data = {
-                        account : , //tjrs envoyé, à virer ?
-                        mission : , //tjrs envoyé, à virer ? (pb du pois  [{poisURI : value}] ???)
+                        mission : ,
 
                         shapes : shapes,
                         pois : pois

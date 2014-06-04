@@ -67,19 +67,20 @@
 
                 getRows(that.trips, function (trips) {
 
+                    //Get trips linked with this route
                     var routeTrips = $.grep(trips, function (elem) {
-
                         return routeId === elem.route_id;
-
                     });
 
-                    var shapeList = [],
-                        tripList = [],
+                    var shapeList = [], //array of shapeID
+                        tripList = [], //array of tripID
                         shapeId = null,
                         tripId = null,
                         i = 0,
                         max = routeTrips.length;
 
+                    //For each trips
+                    //get the shape and trip id
                     for (i = 0; i < max; i++) {
 
                         shapeId = routeTrips[i].shape_id;
@@ -96,9 +97,9 @@
                     }
 
 
-                    var myShapes = {},
+                    var myShapes = {}, //final shapes object
                         myStopsIds  = [],
-                        myStops = [];
+                        myStops = []; //final stops object
 
                     //Get Shapes
                     getRows(that.shapes, function (shapes) {
@@ -106,7 +107,6 @@
                         var shapesTemp = $.grep(shapes, function (elem) {
                             return shapeList.indexOf(elem.shape_id) > -1;
                         });
-
 
                         for (i = 0; i < shapeList.length; i++) {
                             myShapes[shapeList[i]] = [];
@@ -121,9 +121,10 @@
                             });
                         }
 
-                        //Get stops id
+                        //Get stops id with stopTimes
                         getRows(that.stopTimes, function (stopTimes) {
 
+                            //Get stopIDs
                             var stopsIdTemp = $.grep(stopTimes, function (elem) {
                                 return tripList.indexOf(elem.trip_id) > -1;
                             });
