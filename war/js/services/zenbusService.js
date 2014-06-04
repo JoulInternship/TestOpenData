@@ -95,7 +95,7 @@
                         }]
                      */
 
-                    var startUri = lowerString(userService.uri) + ":" + lowerString(userService.networkName);
+                    var startUri = lowerString(userService.get('uri')) + ":" + lowerString(userService.get('networkName'));
 
                     var shapes = $.map(shapesGTFS, function (item, key) {
 
@@ -145,7 +145,7 @@
 
                     //Angular ngResource
                     var resource = $resource(
-                        userService.urlPush,
+                        userService.get('urlPush'),
                         null,
                         {
                             push : {

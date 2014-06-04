@@ -8,15 +8,17 @@
         '$rootScope',
         function (userService, $scope, $rootScope) {
 
-            $scope.urlPush = userService.urlPush;
-            $scope.uri = userService.uri;
-            $scope.networkName = userService.networkName;
+            $scope.urlPush = userService.get('urlPush');
+            $scope.uri = userService.get('uri');
+            $scope.networkName = userService.get('networkName');
 
             $scope.update = function () {
 
-                userService.urlPush = $scope.urlPush;
-                userService.uri = $scope.uri;
-                userService.networkName = $scope.networkName;
+                userService.update(null, {
+                    urlPush : $scope.urlPush,
+                    uri : $scope.uri,
+                    networkName : $scope.networkName
+                });
 
                 $rootScope.step = 1;
             };
