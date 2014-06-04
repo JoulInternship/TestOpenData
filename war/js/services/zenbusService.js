@@ -28,16 +28,6 @@
                 pom.click();
             };
 
-            //Angular ngResource
-            var resource = $resource(
-                userService.urlPush,
-                null,
-                {
-                    push : {
-                        method: "PUT"
-                    }
-                }
-            );
 
             return {
 
@@ -154,6 +144,17 @@
                 sendData : function (data) {
 
                     console.log(data);
+
+                    //Angular ngResource
+                    var resource = $resource(
+                        userService.urlPush,
+                        null,
+                        {
+                            push : {
+                                method: "PUT"
+                            }
+                        }
+                    );
 
                     resource.push(null, data, function (value, responseHeaders) {
 
