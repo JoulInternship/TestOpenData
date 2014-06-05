@@ -2,15 +2,21 @@
 
     'use strict';
 
-    window.app.controller('sendController', [
+    window.app.controller('linesController', [
         '$scope',
         '$rootScope',
+        '$location',
         'parsingService',
-        function ($scope, $rootScope, parsingService) {
+        function ($scope, $rootScope, $location, parsingService) {
 
-            console.log();
+            $rootScope.loading = 0;
 
-           /* parsingService.getRoutes(function (routes) {
+            parsingService.getRoutes(function (routes) {
+
+                if (!routes) {
+                    $location.url('/files');
+                    return;
+                }
 
                 $rootScope.loading = 100;
 
@@ -21,7 +27,14 @@
 
                 });
 
-            });*/
+            });
+
+            $scope.onRouteSelected = function (routeIds) {
+
+                parsingService.routeIds(routeIds);
+
+                $location.url('/send');
+            };
 
         }
     ]);

@@ -4,26 +4,15 @@
     'use strict';
 
     window.app.controller('sendController', [
-        '$rootScope',
         '$scope',
+        '$rootScope',
+        '$location',
+        '$timeout',
         'parsingService',
         'zenbusService',
-        function ($scope, $rootScope, parsingService, zenbusService) {
+        function ($scope, $rootScope, $location, $timeout, parsingService, zenbusService) {
 
-
-            //Init Google map
-
-            var initialize = function () {
-                var mapOptions = {
-                    center: new google.maps.LatLng(47.2212352, -1.5644707),
-                    zoom: 12
-                };
-
-                window.map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-            };
-
-            initialize();
-
+            $rootScope.loading = 0;
 
             var randomColor = function () {
                 return '#' + Math.floor(Math.random() * 16777215).toString(16);
@@ -96,25 +85,34 @@
                 zenbusService.sendData(data);
             };
 
-            //Route selected
-            /*$scope.onRouteSelected = function (routeIds) {
 
-                var routeId = routeIds[0]; //TODO : pass all routeIds
+            $rootScope.loading = 100;
 
-                $rootScope.step = 3;
-
-                $rootScope.loading = 100;
+            $timeout(function () {
 
                 //Show shapes and stops
-                var promise = parsingService.getRouteObjects(routeId);
+                var promise = parsingService.getRouteObjects();
 
-                promise.then(printResult, function () {
-                    console.log("error");
-                }, function (msg) {
-                    console.log(msg);
-                });
+                promise.then(
+                    printResult,
+                    function (msg) {
+                        console.log("error");
 
-            };*/
+                        if (msg === "noFiles") {
+                            $location.url('/files');
+                        }
+                        if (msg === "noRoutes") {
+                            $location.url('/lines');
+                        }
+
+                    },
+                    function (msg) {
+                        console.log(msg);
+                    }
+                );
+
+            }, 2000);
+
         }
     ]);
 
