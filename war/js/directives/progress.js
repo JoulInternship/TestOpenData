@@ -7,7 +7,8 @@
             restrict: 'E',
             replace: true,
             scope: {
-                progress: "="
+                progress: "=",
+                message: "="
             },
             templateUrl: 'partials/progress.html'
         };
