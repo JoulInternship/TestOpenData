@@ -4,179 +4,275 @@
     'use strict';
 
 
-    window.app.factory('parsingService', [function () {
+    window.app.factory('parsingService', [
+        'userService',
+        '$q',
+        function (userService, $q) {
 
-        var reader = new FileReader();
+            var reader = new FileReader();
 
-        var parseCSV = function (txt) {
+            var parseCSV = function (txt) {
 
-            var jsonResult = csvjson.csv2json(txt, {
-                delim: ","
-            });
-            return jsonResult;
+                var jsonResult = csvjson.csv2json(txt, {
+                    delim: ","
+                });
+                return jsonResult;
 
-        };
+            };
 
-        var inArray = function (array, elem) {
-            return array.indexOf(elem) > -1 ? true : false;
-        };
+            var inArray = function (array, elem) {
+                return array.indexOf(elem) > -1 ? true : false;
+            };
 
-        var loadTxt = function (txt, callback) {
+            var inArrayDeep = function (object, elem) {
 
-            reader.readAsText(txt);
-            reader.onloadend = callback;
-        };
+                var key, i;
+                for (key in object) {
+                    if (object.hasOwnProperty(key)) {
 
-        /**
-         * getRows
-         *
-         * return row from csv
-         * 
-         * @param  {String} txt 
-         * @return {Array}     
-         */
-        var getRows = function (txt, callback) {
+                        if ($.isArray(object[key])) {
 
-            loadTxt(txt, function (e) {
+                            for (i = 0; i < object[key].length; i++) {
 
-                var csv = e.target.result;
-
-                var result = parseCSV(csv);
-                callback(result.rows);
-
-            });
-
-        };
-
-
-        return {
-
-            routes : null,
-            shapes : null,
-            stopTimes : null,
-            stops : null,
-            trips : null,
-
-            getRoutes : function (callback) {
-                getRows(this.routes, callback);
-            },
-
-            getShapesAndStops: function (routeId, callback) {
-
-                var that = this;
-
-                getRows(that.trips, function (trips) {
-
-                    //Get trips linked with this route
-                    var routeTrips = $.grep(trips, function (elem) {
-                        return routeId === elem.route_id;
-                    });
-
-                    var shapeList = [], //array of shapeID
-                        tripList = [], //array of tripID
-                        shapeId = null,
-                        tripId = null,
-                        i = 0,
-                        max = routeTrips.length;
-
-                    //For each trips
-                    //get the shape and trip id
-                    for (i = 0; i < max; i++) {
-
-                        shapeId = routeTrips[i].shape_id;
-                        tripId = routeTrips[i].trip_id;
-
-                        if (!inArray(shapeList, shapeId)) {
-                            shapeList.push(shapeId);
-                        }
-
-                        if (!inArray(tripList, tripId)) {
-                            tripList.push(tripId);
-                        }
-
-                    }
-
-
-                    var myShapes = {}, //final shapes object
-                        myStopsIds  = [],
-                        myStops = []; //final stops object
-
-                    //Get Shapes
-                    getRows(that.shapes, function (shapes) {
-
-                        var shapesTemp = $.grep(shapes, function (elem) {
-                            return shapeList.indexOf(elem.shape_id) > -1;
-                        });
-
-                        for (i = 0; i < shapeList.length; i++) {
-                            myShapes[shapeList[i]] = [];
-                        }
-
-                        var shape = shapeList[i];
-                        for (i = 0; i < shapesTemp.length; i++) {
-                            shape = shapesTemp[i];
-                            myShapes[shape.shape_id].push({
-                                latitude : shape.shape_pt_lat,
-                                longitude : shape.shape_pt_lon
-                            });
-                        }
-
-                        //Get stops id with stopTimes
-                        getRows(that.stopTimes, function (stopTimes) {
-
-                            //Get stopIDs
-                            var stopsIdTemp = $.grep(stopTimes, function (elem) {
-                                return tripList.indexOf(elem.trip_id) > -1;
-                            });
-
-                            var stopIdTemp = null;
-
-                            for (i = 0; i < stopsIdTemp.length; i++) {
-
-                                stopIdTemp = stopsIdTemp[i].stop_id;
-
-                                if (!inArray(myStopsIds, stopIdTemp)) {
-                                    myStopsIds.push(stopIdTemp);
+                                if (object[key][i] === elem) {
+                                    return key;
                                 }
+
                             }
+                        }
+                    }
+                }
 
-                            //Get stops
-                            getRows(that.stops, function (stops) {
+                return false;
+            };
 
-                                var stopsTemp = $.grep(stops, function (elem) {
-                                    return myStopsIds.indexOf(elem.stop_id) > -1;
-                                });
+            //Make a string lower and without accent
+            var lowerString = function (str) {
+                return window.latinize((str.toLowerCase()).replace(/\s/g, "_"));
+            };
 
-                                var stop = null;
+            var loadTxt = function (txt, callback) {
 
-                                for (i = 0; i < stopsTemp.length; i++) {
+                reader.readAsText(txt);
+                reader.onloadend = callback;
+            };
 
-                                    stop = stopsTemp[i];
+            var objectToArray = function (object) {
 
-                                    if (!inArray(myStops, stop)) {
-                                        myStops.push({
-                                            id: stop.stop_id,
-                                            latitude: stop.stop_lat,
-                                            longitude: stop.stop_lon,
-                                            name: stop.stop_name,
-                                            desc: ""
-                                        });
-                                    }
-                                }
+                var array = [],
+                    key;
 
-                                callback(myShapes, myStops);
+                for (key in object) {
+                    if (object.hasOwnProperty(key)) {
 
-                            });
+                        array.push(object[key]);
+                    }
+                }
 
-                        });
-                    });
+                return array;
+            };
+
+            /**
+             * getRows
+             *
+             * return row from csv
+             * 
+             * @param  {String} txt 
+             * @return {Array}     
+             */
+            var getRows = function (txt, callback) {
+
+                loadTxt(txt, function (e) {
+
+                    var csv = e.target.result;
+
+                    var result = parseCSV(csv);
+                    callback(result.rows);
 
                 });
 
-            }
-        };
+            };
 
-    }]);
+
+            return {
+
+                routes : null,
+                shapes : null,
+                stopTimes : null,
+                stops : null,
+                trips : null,
+
+                getRoutes : function (callback) {
+                    getRows(this.routes, callback);
+                },
+
+                getRouteObjects : function (routeId, callback) {
+
+                    var deferred = $q.defer();
+
+                    var that = this;
+
+                    var startUri = lowerString(userService.get('uri')) + ":" + lowerString(userService.get('networkName'));
+
+                    var shapes = {}, //shapes object
+                        pois = {}, //pois object
+                        missions = {}; //missions object
+
+                    var stopIdByMission = {};
+
+                    deferred.notify('Find trips for route ' + routeId);
+
+                    //Get all trips linked with routeID
+                    getRows(that.trips, function (tripsRows) {
+
+                        var shapeIds = [], //array of shapeID
+                            tripIds = {}; //array of tripID:shapeID
+
+                        //Get trips linked with this route
+                        $.grep(tripsRows, function (elem) {
+                            if (routeId === elem.route_id) {
+
+                                tripIds[elem.trip_id] = elem.shape_id;
+
+                                if (!inArray(shapeIds, elem.shape_id)) {
+                                    shapeIds.push(elem.shape_id);
+                                }
+                            }
+                        });
+
+                        //Get all stopId that we need
+                        //So we have to open stopTimes (link between trip_id and stop_id)
+                        getRows(that.stopTimes, function (stopTimesRows) {
+
+                            $.grep(stopTimesRows, function (elem) {
+
+                                //Save stop_id in the mission stops array
+                                if (tripIds[elem.trip_id]) {
+
+                                    if (!$.isArray(stopIdByMission[tripIds[elem.trip_id]])) {
+                                        stopIdByMission[tripIds[elem.trip_id]] = [];
+                                    }
+
+                                    if (!inArray(stopIdByMission[tripIds[elem.trip_id]], elem.stop_id)) {
+                                        stopIdByMission[tripIds[elem.trip_id]].push(elem.stop_id);
+                                    }
+
+                                }
+
+                            });
+
+                            deferred.notify('Find stops and missions.');
+
+                            getRows(that.stops, function (stopsRows) {
+
+                                var poiAnchor;
+
+                                //Put poi in mission's pois array & pois array
+                                $.grep(stopsRows, function (elem) {
+
+                                    var shapeId = inArrayDeep(stopIdByMission, elem.stop_id);
+
+                                    if (shapeId) {
+
+                                        //If poi already in pois don't go further
+                                        if (!pois[elem.stop_id]) {
+
+                                            pois[elem.stop_id] = {
+                                                uri: startUri + ':stop:' + lowerString(elem.stop_id),
+                                                name: elem.stop_name,
+                                                latitude: elem.stop_lat,
+                                                longitude: elem.stop_lon
+                                            };
+                                        }
+
+                                        //Put poi in the mission stops array
+
+                                        if (!missions[shapeId] || !$.isArray(missions[shapeId].pois)) {
+
+                                            missions[shapeId] = {};
+
+                                            missions[shapeId].uri = startUri + ':' + lowerString(routeId) + ':' + lowerString(shapeId);
+                                            missions[shapeId].name = shapeId;
+                                            missions[shapeId].meta = "";
+                                            missions[shapeId].desc = "";
+
+                                            missions[shapeId].pois = [];
+                                        }
+
+                                        poiAnchor = {};
+                                        poiAnchor[startUri + ":stop:" + lowerString(elem.stop_name)] = [];
+
+                                        missions[shapeId].pois.push(poiAnchor);
+
+                                    }
+
+                                });
+
+                                deferred.notify('Find shapes.');
+
+                                //Build shapes object
+                                getRows(that.shapes, function (shapesRows) {
+
+                                    $.grep(shapesRows, function (elem) {
+
+                                        if (inArray(shapeIds, elem.shape_id)) {
+
+                                            //Save shape's points
+
+                                            if (!shapes[elem.shape_id] || !$.isArray(shapes[elem.shape_id].points)) {
+
+                                                shapes[elem.shape_id] = {};
+
+                                                shapes[elem.shape_id].uri = startUri
+                                                    + ":"
+                                                    + lowerString(routeId)
+                                                    + ":" + lowerString(String(elem.shape_id));
+                                                shapes[elem.shape_id].desc = "";
+                                                shapes[elem.shape_id].meta = "";
+
+                                                shapes[elem.shape_id].points = [];
+
+                                            }
+
+                                            shapes[elem.shape_id].points.push({
+                                                latitude: elem.shape_pt_lat,
+                                                longitude: elem.shape_pt_lon
+                                            });
+
+                                        }
+
+                                    });
+
+                                    deferred.notify('Convert to array.');
+
+                                    pois = objectToArray(pois);
+                                    shapes = objectToArray(shapes);
+                                    missions = objectToArray(missions);
+
+                                    deferred.resolve({
+                                        pois : pois,
+                                        shapes : shapes,
+                                        missions : missions
+                                    });
+
+                                });
+
+
+
+                            });
+
+
+
+                        });
+
+                    });
+
+                    return deferred.promise;
+                }
+            };
+
+        }
+    ]);
 
 
 }());
