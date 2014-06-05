@@ -3,7 +3,7 @@
 
     'use strict';
 
-    window.app = angular.module('gtfsToZenBus', ['ngRoute', 'ngResource', 'angularFileUpload']);
+    window.app = angular.module('gtfsToZenBus', ['ngRoute', 'ngResource', 'angularFileUpload', 'ui.select2']);
 
 
     window.app.config(function ($routeProvider, $httpProvider) {
