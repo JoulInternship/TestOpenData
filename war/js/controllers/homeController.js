@@ -126,7 +126,9 @@
             };
 
             //Route selected
-            $scope.onRouteSelected = function (routeId) {
+            $scope.onRouteSelected = function (routeIds) {
+
+                var routeId = routeIds[0]; //TODO : pass all routeIds
 
                 $rootScope.step = 3;
 
