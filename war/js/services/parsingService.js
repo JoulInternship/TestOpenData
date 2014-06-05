@@ -9,6 +9,9 @@
         '$q',
         function (accountService, $q) {
 
+            var allFiles = null,
+                routeIds = null;
+
             var reader = new FileReader();
 
             var parseCSV = function (txt) {
@@ -111,10 +114,30 @@
 
             return {
 
-                files : null,
+                files : function (newFiles) {
+                    if (newFiles) {
+                        allFiles = newFiles;
+                    }
+
+                    return allFiles;
+                },
+
+                routeIds : function (newIds) {
+                    if (newIds) {
+                        routeIds = newIds;
+                    }
+
+                    return routeIds;
+                },
 
                 getRoutes : function (callback) {
-                    getRows(this.files[3], callback);
+
+                    if (!this.files() || this.files().length !== 8) {
+                        callback(false);
+                        return;
+                    }
+
+                    getRows(this.files()[3], callback);
                 },
 
                 /**
@@ -126,11 +149,26 @@
                  * 
                  * @param  {function} callback
                  */
-                getRouteObjects : function (routeId, callback) {
+                getRouteObjects : function () {
 
                     var deferred = $q.defer();
 
-                    var that = this;
+                    if (!$.isArray(this.files())) {
+                        deferred.reject('noFiles');
+                        return deferred.promise;
+                    }
+
+                    if (!$.isArray(routeIds)) {
+                        deferred.reject('noRoutes');
+                        return deferred.promise;
+                    }
+
+                    var routeId = routeIds[0];
+
+                    var tripsFile     = this.files()[7],
+                        stopTimesFile = this.files()[5],
+                        stopsFile     = this.files()[6],
+                        shapesFile    = this.files()[4];
 
                     var startUri = lowerString(accountService.get('uri')) + ":" + lowerString(accountService.get('networkName'));
 
@@ -143,7 +181,7 @@
                     deferred.notify('Find trips for route ' + routeId);
 
                     //Get all trips linked with routeID
-                    getRows(that.files[7], function (tripsRows) {
+                    getRows(tripsFile, function (tripsRows) {
 
                         var shapeIds = [], //array of shapeID
                             tripIds = {}; //array of tripID:shapeID
@@ -162,7 +200,7 @@
 
                         //Get all stopId that we need
                         //So we have to open stopTimes (link between trip_id and stop_id)
-                        getRows(that.files[5], function (stopTimesRows) {
+                        getRows(stopTimesFile, function (stopTimesRows) {
 
                             $.grep(stopTimesRows, function (elem) {
 
@@ -183,7 +221,7 @@
 
                             deferred.notify('Find stops and missions.');
 
-                            getRows(that.files[6], function (stopsRows) {
+                            getRows(stopsFile, function (stopsRows) {
 
                                 var poiAnchor;
 
@@ -231,7 +269,7 @@
                                 deferred.notify('Find shapes.');
 
                                 //Build shapes object
-                                getRows(that.files[4], function (shapesRows) {
+                                getRows(shapesFile, function (shapesRows) {
 
                                     $.grep(shapesRows, function (elem) {
 
