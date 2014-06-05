@@ -163,8 +163,6 @@
                         return deferred.promise;
                     }
 
-                    var routeId = routeIds[0];
-
                     var tripsFile     = this.files()[7],
                         stopTimesFile = this.files()[5],
                         stopsFile     = this.files()[6],
@@ -178,7 +176,7 @@
 
                     var stopIdByMission = {};
 
-                    deferred.notify('Find trips for route ' + routeId);
+                    deferred.notify('Find trips for routes');
 
                     //Get all trips linked with routeID
                     getRows(tripsFile, function (tripsRows) {
@@ -188,7 +186,7 @@
 
                         //Get trips linked with this route
                         $.grep(tripsRows, function (elem) {
-                            if (routeId === elem.route_id) {
+                            if (inArray(routeIds, elem.route_id)) {
 
                                 tripIds[elem.trip_id] = elem.shape_id;
 
@@ -249,7 +247,7 @@
 
                                             missions[shapeId] = {};
 
-                                            missions[shapeId].uri = startUri + ':' + lowerString(routeId) + ':' + lowerString(shapeId);
+                                            missions[shapeId].uri = startUri + ':mission:' + lowerString(shapeId);
                                             missions[shapeId].name = shapeId;
                                             missions[shapeId].meta = "";
                                             missions[shapeId].desc = "";
@@ -282,9 +280,8 @@
                                                 shapes[elem.shape_id] = {};
 
                                                 shapes[elem.shape_id].uri = startUri
-                                                    + ":"
-                                                    + lowerString(routeId)
-                                                    + ":" + lowerString(String(elem.shape_id));
+                                                    + ":shape:"
+                                                    + lowerString(String(elem.shape_id));
                                                 shapes[elem.shape_id].desc = "";
                                                 shapes[elem.shape_id].meta = "";
 
