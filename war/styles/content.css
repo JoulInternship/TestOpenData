@@ -2248,4 +2248,22 @@ html, body {
   width: 100%;
   height: 100%; }
 
+/**
+ * Select2
+ */
+.selectPlace .select2-container .select2-choices {
+  height: 48px !important;
+  padding: 10px 15px;
+  font-size: 15px;
+  line-height: 15px;
+  color: #2c3e50;
+  background-color: #ffffff;
+  background-image: none;
+  border: 1px solid #dce4ec;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+  transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s; }
+
 /*# sourceMappingURL=content.css.map */
