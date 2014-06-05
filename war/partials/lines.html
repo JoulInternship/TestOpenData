@@ -1,0 +1,30 @@
+
+<ul class="nav nav-tabs nav-justified mt2">
+    <li class=""><a href="#/files">Import fichier</a></li>
+    <li class="active"><a href="#/lines">Sélection lignes</a></li>
+    <li class="disabled"><a href="#/send">Validation</a></li>
+</ul>
+
+<div class="col-xs-12 smallBorder noBTop">
+    
+    <div class="row " ng-show="step > 1">
+
+        <h1 class="col-xs-12">2 - Sélection de la ligne</h1>
+
+        <div class="col-xs-12 mt1">
+
+            <div class="row selectPlace">
+
+                <select ui-select2 ng-model="selected" data-placeholder="Choisissez vos lignes : " multiple class="col-xs-10 p0 select2Style">
+                    <option value="{{route.route_id}}" ng-repeat="route in routes">{{route.route_long_name}}</option>
+                </select>
+
+                <button class="btn btn-primary ml1" ng-click="onRouteSelected(selected)">Send</button>
+            </div>
+
+        </div>
+
+
+    </div>
+
+</div>

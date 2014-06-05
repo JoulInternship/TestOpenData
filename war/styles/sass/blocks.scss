@@ -75,3 +75,11 @@ html, body {
         transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     }
 
+.smallBorder {
+    border: 1px solid #ecf0f1    
+}
+
+.noBTop {
+    border-top: none;
+}
+

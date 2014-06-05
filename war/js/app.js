@@ -9,15 +9,23 @@
     window.app.config(function ($routeProvider, $httpProvider) {
 
         $routeProvider
-            .when('/', {
-                templateUrl: 'partials/home.html',
-                controller: 'homeController'
+            .when('/files', {
+                templateUrl: 'partials/files.html',
+                controller: 'filesController'
+            })
+            .when('/lines', {
+                templateUrl: 'partials/lines.html',
+                controller: 'linesController'
+            })
+            .when('/send', {
+                templateUrl: 'partials/send.html',
+                controller: 'sendController'
             })
             .when('/loadJson', {
                 templateUrl: 'partials/loadJson.html',
                 controller: 'loadJsonController'
             })
-            .otherwise({redirectTo: '/'});
+            .otherwise({redirectTo: '/files'});
 
         //$httpProvider.defaults.headers.common.Accept = 'application/json, text/javascript';
 
