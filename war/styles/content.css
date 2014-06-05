@@ -2217,7 +2217,7 @@ html, body {
   height: 100%;
   position: fixed;
   z-index: 100;
-  background: rgba(100, 100, 100, 0.8); }
+  background: rgba(70, 70, 70, 0.8); }
 
 .progress-container.hidden {
   display: none; }
@@ -2271,5 +2271,10 @@ html, body {
 
 .noBTop {
   border-top: none; }
+
+.infoMsg {
+  font-size: 20px;
+  color: #fff;
+  font-style: italic; }
 
 /*# sourceMappingURL=content.css.map */

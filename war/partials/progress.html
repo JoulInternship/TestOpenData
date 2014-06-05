@@ -3,9 +3,19 @@
 <div class="progress-container container" ng-class="{hidden: !progress}">
     <div class="row">
         <div class="col-xs-12 h100 taCenter inline">
-            <div class="progress progress-striped active w90 inline">
-                <div class="progress-bar" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%;"></div>
+
+            <div class="w90 inline">
+
+                <p class="infoMsg mb1" ng-show="message">
+                    <em>{{message}}</em>
+                </p>
+
+                <div class="progress progress-striped active w100">
+                    <div class="progress-bar" role="progressbar" aria-valuenow="{{progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{progress}}%;"></div>
+                </div>
+                
             </div>
+
             <div class="inline h100"></div>
         </div>
     </div>    
