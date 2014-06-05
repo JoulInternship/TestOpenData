@@ -7,9 +7,12 @@
         '$rootScope',
         '$scope',
         'parsingService',
-        'userService',
         'zenbusService',
-        function ($rootScope, $scope, parsingService, userService, zenbusService) {
+        function ($rootScope, $scope, parsingService, zenbusService) {
+
+
+            //TODO : add ui-select2 avec multiples entrées pour les lignes 
+
 
             //Init Google map
 
@@ -69,17 +72,42 @@
             };
 
 
+            var printResult = function (data) {
+
+                console.log("success", data);
+
+                $scope.shapes = data.shapes;
+
+                var i;
+
+                //Draw shapes
+                for (i = 0; i < data.shapes.length; i++) {
+
+                    drawShape(makePath(data.shapes[i].points));
+                }
+
+                //Markers
+                var currentStop = null;
+                for (i = 0; i < data.pois.length; i++) {
+
+                    currentStop = data.pois[i];
+
+                    drawMarker(currentStop.name, currentStop.latitude, currentStop.longitude);
+                }
+
+                $rootScope.loading = 0;
+
+                zenbusService.sendData(data);
+            };
+
+
 
             $rootScope.step = 0;
 
             //User loaded files
             $scope.onFileSelect = function (files) {
 
-                parsingService.routes = files[3];
-                parsingService.shapes = files[4];
-                parsingService.stopTimes = files[5];
-                parsingService.stops = files[6];
-                parsingService.trips = files[7];
+                parsingService.files = files;
 
                 parsingService.getRoutes(function (routes) {
 
@@ -105,43 +133,14 @@
                 $rootScope.loading = 100;
 
                 //Show shapes and stops
-                parsingService.getShapesAndStops(routeId, function (shapes, stops) {
+                var promise = parsingService.getRouteObjects(routeId);
 
-                    $scope.$apply(function () {
-
-                        $scope.shapes = shapes;
-
-                        var i;
-
-                        //Draw shapes
-                        var shapeId = null;
-                        for (shapeId in shapes) {
-
-                            if (shapes.hasOwnProperty(shapeId)) {
-
-                                drawShape(makePath(shapes[shapeId]));
-                            }
-
-                        }
-
-                        //Markers
-                        var currentStop = null;
-                        for (i = 0; i < stops.length; i++) {
-
-                            currentStop = stops[i];
-
-                            drawMarker(currentStop.name, currentStop.latitude, currentStop.longitude);
-                        }
-
-                        $rootScope.loading = 0;
-
-                        console.log("Log before sendGTFS");
-
-                        zenbusService.sendGTFS(routeId, shapes, stops);
-
-                    });
-
+                promise.then(printResult, function () {
+                    console.log("error");
+                }, function (msg) {
+                    console.log(msg);
                 });
+
 
             };
         }

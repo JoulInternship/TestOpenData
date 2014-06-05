@@ -5,9 +5,9 @@
 
 
     window.app.factory('parsingService', [
-        'userService',
+        'accountService',
         '$q',
-        function (userService, $q) {
+        function (accountService, $q) {
 
             var reader = new FileReader();
 
@@ -111,14 +111,10 @@
 
             return {
 
-                routes : null,
-                shapes : null,
-                stopTimes : null,
-                stops : null,
-                trips : null,
+                files : null,
 
                 getRoutes : function (callback) {
-                    getRows(this.routes, callback);
+                    getRows(this.files[3], callback);
                 },
 
                 /**
@@ -136,7 +132,7 @@
 
                     var that = this;
 
-                    var startUri = lowerString(userService.get('uri')) + ":" + lowerString(userService.get('networkName'));
+                    var startUri = lowerString(accountService.get('uri')) + ":" + lowerString(accountService.get('networkName'));
 
                     var shapes = {}, //shapes object
                         pois = {}, //pois object
@@ -147,7 +143,7 @@
                     deferred.notify('Find trips for route ' + routeId);
 
                     //Get all trips linked with routeID
-                    getRows(that.trips, function (tripsRows) {
+                    getRows(that.files[7], function (tripsRows) {
 
                         var shapeIds = [], //array of shapeID
                             tripIds = {}; //array of tripID:shapeID
@@ -166,7 +162,7 @@
 
                         //Get all stopId that we need
                         //So we have to open stopTimes (link between trip_id and stop_id)
-                        getRows(that.stopTimes, function (stopTimesRows) {
+                        getRows(that.files[5], function (stopTimesRows) {
 
                             $.grep(stopTimesRows, function (elem) {
 
@@ -187,7 +183,7 @@
 
                             deferred.notify('Find stops and missions.');
 
-                            getRows(that.stops, function (stopsRows) {
+                            getRows(that.files[6], function (stopsRows) {
 
                                 var poiAnchor;
 
@@ -235,7 +231,7 @@
                                 deferred.notify('Find shapes.');
 
                                 //Build shapes object
-                                getRows(that.shapes, function (shapesRows) {
+                                getRows(that.files[4], function (shapesRows) {
 
                                     $.grep(shapesRows, function (elem) {
 
