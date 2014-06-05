@@ -20,6 +20,21 @@
 
             };
 
+            /**
+             * saveFile
+             *
+             * Just a tool to save json that will be send to server
+             * 
+             * @param  {String} filename 
+             * @param  {String} text     
+             */
+            var saveFile = function (filename, text) {
+                var pom = document.createElement('a');
+                pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                pom.setAttribute('download', filename);
+                pom.click();
+            };
+
             var inArray = function (array, elem) {
                 return array.indexOf(elem) > -1 ? true : false;
             };
@@ -106,6 +121,15 @@
                     getRows(this.routes, callback);
                 },
 
+                /**
+                 * getRouteObjects
+                 *
+                 * Work with GTFS data 
+                 * 
+                 * @param  {string} routeId    Will be use for uri
+                 * 
+                 * @param  {function} callback
+                 */
                 getRouteObjects : function (routeId, callback) {
 
                     var deferred = $q.defer();
@@ -249,11 +273,15 @@
                                     shapes = objectToArray(shapes);
                                     missions = objectToArray(missions);
 
-                                    deferred.resolve({
+                                    var data = {
                                         pois : pois,
                                         shapes : shapes,
                                         missions : missions
-                                    });
+                                    };
+
+                                    deferred.resolve(data);
+
+                                    saveFile("data.json", JSON.stringify(data));
 
                                 });
 
