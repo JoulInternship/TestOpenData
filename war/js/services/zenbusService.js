@@ -1,12 +1,11 @@
-/*global latinize*/
 (function () {
 
     'use strict';
 
     window.app.factory('zenbusService', [
         '$resource',
-        'userService',
-        function ($resource, userService) {
+        'accountService',
+        function ($resource, accountService) {
 
             return {
 
@@ -30,7 +29,7 @@
 
                     //Angular ngResource
                     var resource = $resource(
-                        userService.get('urlPush'),
+                        'http://localhost:8888/zenbus/dasboard/api/beta/' + accountService.get('uri'),
                         null,
                         {
                             push : {

@@ -2,10 +2,9 @@
 
     'use strict';
 
-    window.app.factory('userService', function () {
+    window.app.factory('accountService', function () {
 
         var user = {
-            urlPush : "http://trailmatcher.appspot.com/zenbus/dashboard/api/beta/semitanTest",
             uri : "semitanTest",
             networkName: "tan"
         };

@@ -3,19 +3,17 @@
     'use strict';
 
     window.app.controller('userController', [
-        'userService',
+        'accountService',
         '$scope',
         '$rootScope',
-        function (userService, $scope, $rootScope) {
+        function (accountService, $scope, $rootScope) {
 
-            $scope.urlPush = userService.get('urlPush');
-            $scope.uri = userService.get('uri');
-            $scope.networkName = userService.get('networkName');
+            $scope.uri = accountService.get('uri');
+            $scope.networkName = accountService.get('networkName');
 
             $scope.update = function () {
 
-                userService.update(null, {
-                    urlPush : $scope.urlPush,
+                accountService.update(null, {
                     uri : $scope.uri,
                     networkName : $scope.networkName
                 });
