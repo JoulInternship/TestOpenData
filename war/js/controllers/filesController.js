@@ -19,14 +19,26 @@
 
                 filesValidation.validate(files, function (err, files) {
 
-                    console.log(err);
-                    console.log(files);
 
-                    //parsingService.files(files);
+                    if (err) {
 
-                    //$location.url('/lines');
+                        $rootScope.modal = {
+                            title: "Erreur",
+                            message: err
+                        };
+
+                        $('#Modal').modal('show');
+
+                    } else {
+
+                        console.log(files);
+
+                        parsingService.files(files);
+
+                        $location.url('/lines');
+                    }
+
                 });
-
 
             };
         }
