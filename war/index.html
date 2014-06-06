@@ -15,6 +15,8 @@
     <body ng-app="gtfsToZenBus">
         
         <ng-progress progress="loading" message="loadingMsg"></ng-progress>
+
+        <ng-modal title="modal.title" message="modal.message" ok="modal.ok" okFunc="modal.okFunction" cancel="modal.cancel" cancelFunc="modal.cancelFunction"></ng-modal>
         
         <div class="nav navbar-default">
             <div class="navbar-header">
@@ -72,6 +74,7 @@
         
         <script type="text/javascript" src="js/directives/progress.js"></script>
         <script type="text/javascript" src="js/directives/maps.js"></script>
+        <script type="text/javascript" src="js/directives/modal.js"></script>
 
 
     </body>

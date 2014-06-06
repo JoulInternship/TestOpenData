@@ -90,3 +90,18 @@ html, body {
     font-style: italic;
 }
 
+/**
+ * Modal
+ */
+.modal.modal-open {
+    position: relative;
+    top: auto;
+    right: auto;
+    left: auto;
+    bottom: auto;
+    z-index: 1;
+    display: block;
+}
+
+
+
