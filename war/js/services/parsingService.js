@@ -9,7 +9,7 @@
         '$q',
         function (accountService, $q) {
 
-            var allFiles = null,
+            var allFiles = {},
                 routeIds = null;
 
             var reader = new FileReader();
@@ -132,12 +132,12 @@
 
                 getRoutes : function (callback) {
 
-                    if (!this.files() || this.files().length !== 8) {
+                    if (!allFiles) {
                         callback(false);
                         return;
                     }
 
-                    getRows(this.files()[3], callback);
+                    getRows(allFiles['routes.txt'], callback);
                 },
 
                 /**
@@ -153,7 +153,7 @@
 
                     var deferred = $q.defer();
 
-                    if (!$.isArray(this.files())) {
+                    if (!allFiles) {
                         deferred.reject('noFiles');
                         return deferred.promise;
                     }
@@ -163,10 +163,10 @@
                         return deferred.promise;
                     }
 
-                    var tripsFile     = this.files()[7],
-                        stopTimesFile = this.files()[5],
-                        stopsFile     = this.files()[6],
-                        shapesFile    = this.files()[4];
+                    var tripsFile     = allFiles.getTrips(),
+                        stopTimesFile = allFiles.getStopTimes(),
+                        stopsFile     = allFiles.getStops(),
+                        shapesFile    = allFiles.getShapes();
 
                     var startUri = lowerString(accountService.get('uri')) + ":" + lowerString(accountService.get('networkName'));
 
