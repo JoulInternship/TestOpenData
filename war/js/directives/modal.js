@@ -14,10 +14,7 @@
                 cancel: "=",
                 cancelFunc: "="
             },
-            templateUrl: 'partials/modal.html',
-            link : function () {
-                console.log('start');
-            }
+            templateUrl: 'partials/modal.html'
         };
     });
 
