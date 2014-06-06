@@ -19,7 +19,14 @@
 
                     var json = e.target.result;
 
-                    zenbusService.sendData(JSON.parse(json));
+                    var data = JSON.parse(json);
+
+                    $scope.$apply(function () {
+                        $scope.pois = data.pois;
+                        $scope.shapes = data.shapes;
+                    });
+
+                    zenbusService.sendData(data);
 
                 };
             };

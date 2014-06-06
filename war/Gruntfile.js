@@ -48,8 +48,7 @@ module.exports = function(grunt) {
                     undef: false,
                     unparam: true,
                     strict: false,
-                    globalstrict: true,
-
+                    globalstrict: true
                 }
             }
         },
