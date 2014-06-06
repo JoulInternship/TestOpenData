@@ -17,39 +17,51 @@
             $rootScope.loading = 100;
             $rootScope.loadingMsg = "Traitement des fichiers GTFS en cours. L'opération peut durer quelques minutes ...";
 
-            $timeout(function () {
+            var redirect = function () {
+                $location.url('/files');
+            };
 
-                //Show shapes and stops
-                var promise = parsingService.getRouteObjects();
+            console.log(parsingService.files());
 
-                promise.then(
-                    function (data) {
+            if ($.isEmptyObject(parsingService.files())) {
+                redirect();
+            } else {
 
-                        $scope.shapes = data.shapes;
-                        $scope.pois = data.pois;
+                $timeout(function () {
 
-                        zenbusService.sendData(data);
+                    //Show shapes and stops
+                    var promise = parsingService.getRouteObjects();
 
-                        $rootScope.loading = 0;
+                    promise.then(
+                        function (data) {
 
-                    },
-                    function (msg) {
+                            $scope.shapes = data.shapes;
+                            $scope.pois = data.pois;
 
-                        if (msg === "noFiles") {
-                            $location.url('/files');
-                        } else if (msg === "noRoutes") {
-                            $location.url('/lines');
-                        } else {
-                            console.log("error");
+                            zenbusService.sendData(data);
+
+                            $rootScope.loading = 0;
+
+                        },
+                        function (msg) {
+
+                            if (msg === "noFiles") {
+                                redirect();
+                            } else if (msg === "noRoutes") {
+                                redirect();
+                            } else {
+                                console.log("error");
+                            }
+
+                        },
+                        function (msg) {
+                            console.log(msg);
                         }
+                    );
 
-                    },
-                    function (msg) {
-                        console.log(msg);
-                    }
-                );
+                }, 2000);
 
-            }, 2000);
+            }
 
         }
     ]);
