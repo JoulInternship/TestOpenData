@@ -7,8 +7,9 @@
         '$rootScope',
         '$location',
         'parsingService',
+        'filesValidation',
         'zenbusService',
-        function ($scope, $rootScope, $location, parsingService, zenbusService) {
+        function ($scope, $rootScope, $location, parsingService, filesValidation, zenbusService) {
 
             $rootScope.step = 0;
             $rootScope.loading = 0;
@@ -16,9 +17,16 @@
             //User loaded files
             $scope.onFileSelect = function (files) {
 
-                parsingService.files(files);
+                filesValidation.validate(files, function (err, files) {
 
-                $location.url('/lines');
+                    console.log(err);
+                    console.log(files);
+
+                    //parsingService.files(files);
+
+                    //$location.url('/lines');
+                });
+
 
             };
         }
