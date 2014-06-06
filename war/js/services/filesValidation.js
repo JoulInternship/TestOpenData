@@ -11,7 +11,26 @@
                 'routes.txt': null,
                 'trips.txt': null,
                 'stop_times.txt': null,
-                'calendar.txt': null
+                'calendar.txt': null,
+
+                getAgency : function () {
+                    return this['agency.txt'];
+                },
+                getStops : function () {
+                    return this['stops.txt'];
+                },
+                getRoutes : function () {
+                    return this['routes.txt'];
+                },
+                getTrips : function () {
+                    return this['trips.txt'];
+                },
+                getStopTimes : function () {
+                    return this['stop_times.txt'];
+                },
+                getCalendar : function () {
+                    return this['calendar.txt'];
+                }
             },
                 OPTIONNAL_FILES = {
                     'calendar_dates.txt': null,
@@ -33,8 +52,6 @@
 
                 validate : function (files, callback) {
 
-                    console.log(files);
-
                     if (files.length >= REQUIRED_FILES_COUNT) {
 
                         angular.forEach(files, function (file) {
@@ -43,9 +60,6 @@
 
                                 REQUIRED_FILES[file.name] = file;
                                 REQUIRED_FILES_COUNT = REQUIRED_FILES_COUNT - 1;
-
-                                console.log(file.name);
-                                console.log(REQUIRED_FILES_COUNT);
 
                             } else if (!OPTIONNAL_FILES[file.name]) {
                                 OPTIONNAL_FILES[file.name] = file;
@@ -56,6 +70,9 @@
                         if (!REQUIRED_FILES_COUNT) {
 
                             REQUIRED_FILES['shapes.txt'] = OPTIONNAL_FILES['shapes.txt'];
+                            REQUIRED_FILES.getShapes = function () {
+                                return this['shapes.txt'];
+                            };
 
                             callback(false, REQUIRED_FILES);
 
