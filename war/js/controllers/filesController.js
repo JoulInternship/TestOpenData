@@ -14,6 +14,8 @@
             $rootScope.step = 0;
             $rootScope.loading = 0;
 
+            filesValidation.reset(); //reset service
+
             $scope.infos = [];
 
             var files;
