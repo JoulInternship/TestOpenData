@@ -21,8 +21,6 @@
                 $location.url('/files');
             };
 
-            console.log(parsingService.files());
-
             if ($.isEmptyObject(parsingService.files())) {
                 redirect();
             } else {
