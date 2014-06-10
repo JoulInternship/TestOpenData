@@ -267,56 +267,65 @@
                                 deferred.notify('Find shapes.');
 
                                 //Build shapes object
-                                getRows(shapesFile, function (shapesRows) {
 
-                                    $.grep(shapesRows, function (elem) {
+                                if (shapesFile) {
 
-                                        if (inArray(shapeIds, elem.shape_id)) {
+                                    deferred.notify('There are shapes');
 
-                                            //Save shape's points
+                                    getRows(shapesFile, function (shapesRows) {
 
-                                            if (!shapes[elem.shape_id] || !$.isArray(shapes[elem.shape_id].points)) {
+                                        $.grep(shapesRows, function (elem) {
 
-                                                shapes[elem.shape_id] = {};
+                                            if (inArray(shapeIds, elem.shape_id)) {
 
-                                                shapes[elem.shape_id].uri = startUri
-                                                    + ":shape:"
-                                                    + lowerString(String(elem.shape_id));
-                                                shapes[elem.shape_id].desc = "";
-                                                shapes[elem.shape_id].meta = "";
+                                                //Save shape's points
 
-                                                shapes[elem.shape_id].points = [];
+                                                if (!shapes[elem.shape_id] || !$.isArray(shapes[elem.shape_id].points)) {
+
+                                                    shapes[elem.shape_id] = {};
+
+                                                    shapes[elem.shape_id].uri = startUri
+                                                        + ":shape:"
+                                                        + lowerString(String(elem.shape_id));
+                                                    shapes[elem.shape_id].desc = "";
+                                                    shapes[elem.shape_id].meta = "";
+
+                                                    shapes[elem.shape_id].points = [];
+
+                                                }
+
+                                                shapes[elem.shape_id].points.push({
+                                                    latitude: elem.shape_pt_lat,
+                                                    longitude: elem.shape_pt_lon
+                                                });
 
                                             }
 
-                                            shapes[elem.shape_id].points.push({
-                                                latitude: elem.shape_pt_lat,
-                                                longitude: elem.shape_pt_lon
-                                            });
-
-                                        }
+                                        });
 
                                     });
 
-                                    deferred.notify('Convert to array.');
+                                } else {
 
-                                    pois = objectToArray(pois);
-                                    shapes = objectToArray(shapes);
-                                    missions = objectToArray(missions);
+                                    deferred.notify('No shapes given.');
 
-                                    var data = {
-                                        pois : pois,
-                                        shapes : shapes,
-                                        missions : missions
-                                    };
+                                }
 
-                                    deferred.resolve(data);
+                                deferred.notify('Convert to array.');
 
-                                    saveFile("data.json", JSON.stringify(data));
+                                pois = objectToArray(pois);
+                                shapes = objectToArray(shapes);
+                                missions = objectToArray(missions);
 
-                                });
+                                var data = {
+                                    pois : pois,
+                                    shapes : shapes,
+                                    missions : missions
+                                };
 
+                                deferred.resolve(data);
 
+                                saveFile("data.json", JSON.stringify(data));
 
                             });
 
