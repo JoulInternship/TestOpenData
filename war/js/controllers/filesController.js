@@ -37,7 +37,7 @@
 
                         $rootScope.modal = {
                             title: "Attention",
-                            message: 'Le fichiers "shapes.txt" n\'est pas présent. Continuer en traçant les parcours uniquement avec les arrêts ?',
+                            message: 'Le fichiers "shapes.txt" n\'est pas présent. Continuer en traçant les parcours uniquement à l\'aide des arrêts uniquement ?',
                             cancel: "Importer de nouveaux fichiers",
                             cancelFunction: function () {
                                 $scope.restart();
