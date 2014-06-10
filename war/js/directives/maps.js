@@ -6,34 +6,6 @@
     window.app.directive('ngMaps', [
         function () {
 
-            var markerCanvas = null;
-
-            var getMarkerCanvas = function () {
-
-                if (!markerCanvas) {
-
-                    //Create canvas
-                    var canvas = document.createElement("canvas");
-                    canvas.width = 16;
-                    canvas.height = 16;
-
-                    var ctx = canvas.getContext('2d');
-                    ctx.lineWidth = 2;
-
-                    ctx.beginPath();
-                    ctx.arc(8, 8, 6, 0, Math.PI * 2);
-                    ctx.strokeStyle = "#333333";
-                    ctx.fillStyle = "#f4efe9";
-                    ctx.fill();
-                    ctx.stroke();
-                    ctx.closePath();
-
-                    markerCanvas = canvas.toDataURL();
-                }
-
-                return markerCanvas;
-            };
-
             var randomColor = function () {
                 return '#' + Math.floor(Math.random() * 16777215).toString(16);
             };
@@ -73,8 +45,12 @@
                     position: new google.maps.LatLng(latitude, longitude),
                     title: name,
                     icon: {
-                        url: getMarkerCanvas(),
-                        size: new google.maps.Size(16, 16)
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: "#f4efe9",
+                        fillOpacity: 1,
+                        strokeColor: "#333333",
+                        strokeWeight: 2,
+                        scale: 6
                         //anchor: new google.maps.Point(0, -16)
                     }
                 });
