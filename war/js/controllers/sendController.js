@@ -35,6 +35,10 @@
 
                             $scope.shapes = data.shapes;
                             $scope.pois = data.pois;
+                            $scope.center = {
+                                latitude: data.pois[0].latitude,
+                                longitude: data.pois[0].longitude
+                            };
 
                             zenbusService.sendData(data);
 

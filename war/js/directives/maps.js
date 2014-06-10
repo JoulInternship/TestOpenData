@@ -91,12 +91,22 @@
                 scope.$watch('pois', function () {
                     printResult(scope.shapes, scope.pois);
                 });
+                scope.$watch('center', function () {
+                    window.map.setCenter(new google.maps.LatLng(
+                        scope.center ? scope.center.latitude : 47.2212352, // default JOUL Nantes
+                        scope.center ? scope.center.longitude : -1.5644707
+                    ));
+                });
 
 
                 //Init Google map
                 var initialize = function () {
+
                     var mapOptions = {
-                        center: new google.maps.LatLng(47.2212352, -1.5644707),
+                        center: new google.maps.LatLng(
+                            scope.center ? scope.center.latitude : 47.2212352, // default JOUL Nantes
+                            scope.center ? scope.center.longitude : -1.5644707
+                        ),
                         zoom: 12
                     };
 
@@ -111,7 +121,8 @@
                 replace: true,
                 scope: {
                     shapes: "=",
-                    pois: "="
+                    pois: "=",
+                    center: "="
                 },
                 link: link,
                 templateUrl: 'partials/maps.html'
