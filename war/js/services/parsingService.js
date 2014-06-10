@@ -266,6 +266,27 @@
 
                                 deferred.notify('Find shapes.');
 
+                                //Need to wrap the last lines of codes in a function
+                                //Because getRows seams to be asynchronous (?)
+                                var end = function () {
+
+                                    deferred.notify('Convert to array.');
+
+                                    pois = objectToArray(pois);
+                                    shapes = objectToArray(shapes);
+                                    missions = objectToArray(missions);
+
+                                    var data = {
+                                        pois : pois,
+                                        shapes : shapes,
+                                        missions : missions
+                                    };
+
+                                    deferred.resolve(data);
+
+                                    saveFile("data.json", JSON.stringify(data));
+                                };
+
                                 //Build shapes object
 
                                 if (shapesFile) {
@@ -303,6 +324,8 @@
 
                                         });
 
+                                        end();
+
                                     });
 
                                 } else {
@@ -311,24 +334,8 @@
 
                                 }
 
-                                deferred.notify('Convert to array.');
-
-                                pois = objectToArray(pois);
-                                shapes = objectToArray(shapes);
-                                missions = objectToArray(missions);
-
-                                var data = {
-                                    pois : pois,
-                                    shapes : shapes,
-                                    missions : missions
-                                };
-
-                                deferred.resolve(data);
-
-                                saveFile("data.json", JSON.stringify(data));
 
                             });
-
 
 
                         });
