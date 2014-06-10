@@ -144,7 +144,7 @@
 
                                 defered.notify({
                                     txt: file,
-                                    status: 'muted',
+                                    status: file === 'shapes.txt' ? 'warning' : 'muted',
                                     required: false
                                 });
                             }
@@ -162,7 +162,6 @@
                             defered.resolve({
                                 files: REQUIRED_FILES,
                                 shapes : REQUIRED_FILES['shapes.txt'] === null ? false : true
-
                             });
 
                         } else {
