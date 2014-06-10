@@ -10,9 +10,9 @@
                 title: "=",
                 message: "=",
                 ok: "=",
-                okFunc: "=",
+                okFunction: "&",
                 cancel: "=",
-                cancelFunc: "="
+                cancelFunc: "&"
             },
             templateUrl: 'partials/modal.html'
         };
