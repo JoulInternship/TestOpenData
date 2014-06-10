@@ -16,12 +16,16 @@
 
             $scope.infos = [];
 
+            var files;
+
             //User loaded files
-            $scope.onFileSelect = function (files) {
+            $scope.onFileSelect = function (inputFiles) {
 
                 $rootScope.loading = 100;
 
-                filesValidation.validate(files).then(function (result) { //It's ok
+                filesValidation.validate(inputFiles).then(function (result) { //It's ok
+
+                    files = result.files;
 
                     $rootScope.loading = 0;
 
@@ -43,10 +47,6 @@
                     } else {
                         $scope.success = true;
                     }
-
-                    //parsingService.files(files);
-
-                    //$location.url('/lines');
 
                 }, function (err) { // Error
 
@@ -85,6 +85,14 @@
                     $rootScope.step = 1;
 
                     $('#Modal').modal('hide');
+
+                };
+
+                $scope.next = function () {
+
+                    parsingService.files(files);
+
+                    $location.url('/lines');
 
                 };
 
