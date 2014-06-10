@@ -7,14 +7,26 @@
         '$timeout',
         function ($q, $timeout) {
 
-            var REQUIRED_FILES_NAME = [
-                'agency.txt',
-                'stops.txt',
-                'routes.txt',
-                'trips.txt',
-                'stop_times.txt',
-                'calendar.txt'
-            ],
+            var REQUIRED_FILES,
+                REQUIRED_FILES_NAME,
+                OPTIONNAL_FILES,
+                OPTIONNAL_FILES_NAME,
+                REQUIRED_FILES_COUNT,
+                FILES_ERRORS = {
+                    filesLengthError : "Nombre de fichiers insuffisant.",
+                    requiredFilesLengthError : "Nombre de fichiers requis insuffisant. Impossible de continuer la procédure"
+                };
+
+            var init = function () {
+
+                REQUIRED_FILES_NAME = [
+                    'agency.txt',
+                    'stops.txt',
+                    'routes.txt',
+                    'trips.txt',
+                    'stop_times.txt',
+                    'calendar.txt'
+                ];
 
                 OPTIONNAL_FILES_NAME = [
                     'calendar_dates.txt',
@@ -24,7 +36,7 @@
                     'frequencies.txt',
                     'transfers.txt',
                     'feed_info.txt'
-                ],
+                ];
 
                 REQUIRED_FILES = {
                     'agency.txt': null,
@@ -52,7 +64,7 @@
                     getCalendar : function () {
                         return this['calendar.txt'];
                     }
-                },
+                };
 
                 OPTIONNAL_FILES = {
                     'calendar_dates.txt': null,
@@ -62,17 +74,18 @@
                     'frequencies.txt': null,
                     'transfers.txt': null,
                     'feed_info.txt': null
-                },
-
-                REQUIRED_FILES_COUNT = 6,
-
-                FILES_ERRORS = {
-                    filesLengthError : "Nombre de fichiers insuffisant.",
-                    requiredFilesLengthError : "Nombre de fichiers requis insuffisant. Impossible de continuer la procédure"
                 };
+
+                REQUIRED_FILES_COUNT = 6;
+
+            };
+
+            init();
 
 
             return {
+
+                reset : init, //reset service
 
                 validate : function (files, callback) {
 
@@ -146,7 +159,11 @@
                                 return this['shapes.txt'];
                             };
 
-                            defered.resolve(REQUIRED_FILES);
+                            defered.resolve({
+                                files: REQUIRED_FILES,
+                                shapes : REQUIRED_FILES['shapes.txt'] === null ? false : true
+
+                            });
 
                         } else {
 
