@@ -132,7 +132,7 @@
 
                 getRoutes : function (callback) {
 
-                    if (!allFiles) {
+                    if ($.isEmptyObject(allFiles)) {
                         callback(false);
                         return;
                     }
@@ -153,7 +153,7 @@
 
                     var deferred = $q.defer();
 
-                    if (!allFiles) {
+                    if ($.isEmptyObject(allFiles)) {
                         deferred.reject('noFiles');
                         return deferred.promise;
                     }
