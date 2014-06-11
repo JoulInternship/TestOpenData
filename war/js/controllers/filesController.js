@@ -14,6 +14,13 @@
             $rootScope.step = 0;
             $rootScope.loading = 0;
 
+            //Alert messages
+            $scope.successMsg = null;
+            $scope.warningMsg = null;
+            $scope.errorMsg = null;
+
+            $scope.filesPresent = false; //display files list if present
+
             filesValidation.reset(); //reset service
 
             $scope.infos = [];
@@ -23,72 +30,63 @@
             //User loaded files
             $scope.onFileSelect = function (inputFiles) {
 
+                console.log('success');
+
                 $rootScope.loading = 100;
 
                 filesValidation.validate(inputFiles).then(function (result) { //It's ok
 
+                    $rootScope.loading = 0;
+
                     files = result.files;
 
-                    $rootScope.loading = 0;
+                    $scope.filesPresent = true;
+                    $scope.successMsg = "Tout est bon.";
+                    $scope.errorMsg = null;
 
                     if (!result.shapes) {
 
-                        $scope.warning = true;
+                        var warning = 'Le fichiers "shapes.txt" n\'est pas présent. Continuer en traçant les parcours à l\'aide des arrêts uniquement ?';
 
                         $rootScope.modal = {
                             title: "Attention",
-                            message: 'Le fichiers "shapes.txt" n\'est pas présent. Continuer en traçant les parcours à l\'aide des arrêts uniquement ?',
+                            message: warning,
                             cancel: "Importer de nouveaux fichiers",
                             cancelFunction: function () {
                                 $scope.restart();
                             }
                         };
-
                         $('#Modal').modal('show');
 
-                    } else {
-                        $scope.success = true;
+                        $scope.warningMsg = warning;
+                        $scope.successMsg = false;
+
                     }
 
                 }, function (err) { // Error
 
+                    console.log("error");
+
                     $rootScope.loading = 0;
-                    $scope.error = true;
+                    $scope.filesPresent = err.filesPresent;
 
-                    $rootScope.modal = {
-                        title: "Erreur",
-                        message: err
-                    };
-
-                    $('#Modal').modal('show');
+                    $scope.errorMsg = err.error;
+                    $scope.warningMsg = null;
+                    $scope.sucessMsg = null;
 
                 }, function (info) { //Notification
 
-                    $rootScope.loading = 0;
+                    console.log("info");
+
+                    $scope.filesPresent = true;
 
                     if (info.txt === 'start') {
-                        $rootScope.step = 2;
+                        $scope.infos = [];
                     } else {
                         $scope.infos.push(info);
                     }
 
                 });
-
-                $scope.restart = function () {
-
-                    filesValidation.reset(); //reset service
-
-                    $scope.infos = [];
-
-                    $scope.error = false;
-                    $scope.warning = false;
-                    $scope.success = false;
-
-                    $rootScope.step = 1;
-
-                    $('#Modal').modal('hide');
-
-                };
 
                 $scope.next = function () {
 

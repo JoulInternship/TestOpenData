@@ -12,6 +12,7 @@
                 OPTIONNAL_FILES,
                 OPTIONNAL_FILES_NAME,
                 REQUIRED_FILES_COUNT,
+                OPTIONNAL_FILES_COUNT,
                 FILES_ERRORS = {
                     filesLengthError : "Nombre de fichiers insuffisant.",
                     requiredFilesLengthError : "Nombre de fichiers requis insuffisant. Impossible de continuer la procédure"
@@ -76,7 +77,9 @@
                     'feed_info.txt': null
                 };
 
-                REQUIRED_FILES_COUNT = 6;
+                REQUIRED_FILES_COUNT = 0;
+
+                OPTIONNAL_FILES_COUNT = 0;
 
             };
 
@@ -109,28 +112,41 @@
                             required: false
                         });
 
-
+                        //Save files
                         angular.forEach(files, function (file) {
 
                             //If it's a required file
                             if (REQUIRED_FILES[file.name] === null) {
 
                                 REQUIRED_FILES[file.name] = file;
-                                REQUIRED_FILES_COUNT = REQUIRED_FILES_COUNT - 1;
-
-                                defered.notify({
-                                    txt: file.name,
-                                    status: 'success',
-                                    required: true
-                                });
 
                             } else if (OPTIONNAL_FILES[file.name] === null) { //If it's a optionnal file
                                 OPTIONNAL_FILES[file.name] = file;
+                            }
+
+                        });
+
+                        REQUIRED_FILES_COUNT = 0;
+                        OPTIONNAL_FILES_COUNT = 0;
+
+                        //Notify missing required files
+                        angular.forEach(REQUIRED_FILES_NAME, function (file) {
+
+                            //If file is still null
+                            if (REQUIRED_FILES[file] === null) {
+                                defered.notify({
+                                    txt: file,
+                                    status: 'warning',
+                                    required: true
+                                });
+                            } else { //it's ok
+
+                                REQUIRED_FILES_COUNT++;
 
                                 defered.notify({
-                                    txt: file.name,
+                                    txt: file,
                                     status: 'success',
-                                    required: false
+                                    required: true
                                 });
                             }
 
@@ -147,12 +163,22 @@
                                     status: file === 'shapes.txt' ? 'warning' : 'muted',
                                     required: false
                                 });
+                            } else { //it's ok
+
+                                OPTIONNAL_FILES_COUNT++;
+
+                                defered.notify({
+                                    txt: file,
+                                    status: 'success',
+                                    required: false
+                                });
+
                             }
 
                         });
 
                         //If all required files are present
-                        if (!REQUIRED_FILES_COUNT) {
+                        if (REQUIRED_FILES_COUNT === 6) {
 
                             REQUIRED_FILES['shapes.txt'] = OPTIONNAL_FILES['shapes.txt'];
                             REQUIRED_FILES.getShapes = function () {
@@ -166,22 +192,10 @@
 
                         } else {
 
-                            //Notify missing required files
-                            angular.forEach(REQUIRED_FILES_NAME, function (file) {
-
-                                //If file is still null
-                                if (REQUIRED_FILES[file] === null) {
-
-                                    defered.notify({
-                                        txt: file,
-                                        status: 'warning',
-                                        required: true
-                                    });
-                                }
-
+                            defered.reject({
+                                error: FILES_ERRORS.requiredFilesLengthError,
+                                filesPresent : (REQUIRED_FILES_COUNT !== 6 || OPTIONNAL_FILES_COUNT !== 0) ? true : false
                             });
-
-                            defered.reject(FILES_ERRORS.requiredFilesLengthError);
                         }
 
                     }, 0);
