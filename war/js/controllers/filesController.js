@@ -30,8 +30,6 @@
             //User loaded files
             $scope.onFileSelect = function (inputFiles) {
 
-                console.log('success');
-
                 $rootScope.loading = 100;
 
                 filesValidation.validate(inputFiles).then(function (result) { //It's ok
@@ -65,8 +63,6 @@
 
                 }, function (err) { // Error
 
-                    console.log("error");
-
                     $rootScope.loading = 0;
                     $scope.filesPresent = err.filesPresent;
 
@@ -75,8 +71,6 @@
                     $scope.sucessMsg = null;
 
                 }, function (info) { //Notification
-
-                    console.log("info");
 
                     $scope.filesPresent = true;
 
