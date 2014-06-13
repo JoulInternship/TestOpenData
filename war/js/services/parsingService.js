@@ -92,18 +92,19 @@
              */
             var inTempStopIds = function (object, elem) {
 
+                var result = [];
+
                 var key;
                 for (key in object) {
                     if (object.hasOwnProperty(key)) {
 
-                        if (inArray(object[key].tempStopIds, elem)) {
-                            return key;
+                        if (inArray(object[key].points, elem)) {
+                            result.push(key);
                         }
                     }
                 }
 
-
-                return false;
+                return result;
             };
 
             //Make a string lower and without accent
@@ -487,8 +488,7 @@
                                     uri : startUri + ':shape:' + lowerString(trip),
                                     desc : "",
                                     meta : "",
-                                    points : [],
-                                    tempStopIds : uniqueTrips[trip]
+                                    points : []
                                 };
 
                                 missions[startUri + ':shape:' + lowerString(trip)] = {
@@ -499,54 +499,58 @@
                                     pois : []
                                 };
 
+                                shapes[startUri + ':shape:' + lowerString(trip)].points = $.extend([], uniqueTrips[trip]);
+                                missions[startUri + ':shape:' + lowerString(trip)].pois = $.extend([], uniqueTrips[trip]);
+
                             }
                         }
 
-                        var shapeID,
+                        var shapeIDs,
                             poiAnchor;
 
                         getRows(stopsFile, function (stopsRows) {
 
+                            var index;
+
                             $.grep(stopsRows, function (elem) {
 
-                                shapeID = inTempStopIds(shapes, elem.stop_id);
+                                shapeIDs = inTempStopIds(shapes, elem.stop_id);
 
-                                if (shapeID) {
+                                if (shapeIDs.length > 0) {
 
-                                    //Add in shapes
-                                    shapes[shapeID].points.push({
-                                        latitude: elem.stop_lat,
-                                        longitude: elem.stop_lon
-                                    });
+                                    $.each(shapeIDs, function (i, id) {
 
-                                    //Add in missions
-                                    poiAnchor = {};
-                                    poiAnchor[startUri + ":stop:" + lowerString(elem.stop_name)] = [];
+                                        //Get point position in array
+                                        //Need the exact position to draw the shape
+                                        index = shapes[id].points.indexOf(elem.stop_id);
 
-                                    missions[shapeID].pois.push(poiAnchor);
-
-                                    //Add in pois if needed
-                                    if (!pois[elem.stop_id]) {
-
-                                        pois[lowerString(elem.stop_id)] = {
-                                            uri: startUri + ':stop:' + lowerString(elem.stop_id),
-                                            name: elem.stop_name,
+                                        //Add in shapes
+                                        shapes[id].points[index] = {
                                             latitude: elem.stop_lat,
                                             longitude: elem.stop_lon
                                         };
-                                    }
+
+                                        //Add in missions
+                                        poiAnchor = {};
+                                        poiAnchor[startUri + ":stop:" + lowerString(elem.stop_name)] = [];
+
+                                        missions[id].pois[index] = poiAnchor;
+
+                                        //Add in pois if needed
+                                        if (!pois[elem.stop_id]) {
+
+                                            pois[lowerString(elem.stop_id)] = {
+                                                uri: startUri + ':stop:' + lowerString(elem.stop_id),
+                                                name: elem.stop_name,
+                                                latitude: elem.stop_lat,
+                                                longitude: elem.stop_lon
+                                            };
+                                        }
+
+                                    });
+
                                 }
                             });
-
-                            //Delete tempStopIds
-                            var shape;
-                            for (shape in shapes) {
-                                if (shapes.hasOwnProperty(shape)) {
-
-                                    delete shapes[shape].tempStopIds;
-
-                                }
-                            }
 
                             convertAndSend(pois, shapes, missions, deferred);
 
