@@ -32,7 +32,7 @@
                     path: paths,
                     geodesic: true,
                     strokeColor: randomColor(),
-                    strokeOpacity: 1.0,
+                    strokeOpacity: 0.6,
                     strokeWeight: 4
                 });
 
