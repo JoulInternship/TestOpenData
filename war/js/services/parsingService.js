@@ -43,39 +43,6 @@
                 return array.indexOf(elem) > -1 ? true : false;
             };
 
-            var inArrayDeep = function (object, elem) {
-
-                var forKeyInObject = function (ob) {
-
-                    //console.log(ob);
-
-                    var key, i;
-                    for (key in ob) {
-                        if (ob.hasOwnProperty(key)) {
-
-                            //console.log(key);
-
-                            if (ob[key] === elem) {
-                                return key;
-                            }
-                            if ($.isArray(ob[key])) {
-                                for (i = 0; i < ob[key].length; i++) {
-                                    if (ob[key][i] === elem) {
-                                        console.log(key);
-                                        return key;
-                                    }
-                                }
-                            } else if (typeof ob[key] === 'object') {
-                                return forKeyInObject(ob[key]);
-                            }
-                        }
-                    }
-
-                };
-
-                return forKeyInObject(object);
-            };
-
             /**
              * inTempStopIds
              * @param  {Object} object 
@@ -246,9 +213,14 @@
             };
 
 
-            var workWithShapes = function (deferred) {
+            var workOnFiles = function (deferred, shapesGiven) {
 
-                deferred.notify('Shapes given :) ');
+                if (shapesGiven) {
+                    deferred.notify('Shapes given :) ');
+                } else {
+                    deferred.notify('No shapes given :( ');
+                }
+
 
                 var startUri = lowerString(accountService.get('uri')) + ":" + lowerString(accountService.get('networkName'));
 
@@ -261,196 +233,26 @@
                     pois = {}, //pois object
                     missions = {}; //missions object
 
-                var stopIdByMission = {};
-
-                deferred.notify('Find trips for routes');
-
-                //Get all trips linked with routeID
-                getRows(tripsFile, function (tripsRows) {
-
-                    var shapeIds = [], //array of shapeID
-                        tripIds = {}; //array of tripID:shapeID
-
-                    //Get trips linked with this route
-                    $.grep(tripsRows, function (elem) {
-                        if (inArray(routeIds, elem.route_id)) {
-
-                            tripIds[elem.trip_id] = elem.shape_id;
-
-                            if (!inArray(shapeIds, elem.shape_id)) {
-                                shapeIds.push(elem.shape_id);
-                            }
-                        }
-                    });
-
-                    //Get all stopId that we need
-                    //So we have to open stopTimes (link between trip_id and stop_id)
-                    getRows(stopTimesFile, function (stopTimesRows) {
-
-                        $.grep(stopTimesRows, function (elem) {
-
-                            //Save stop_id in the mission stops array
-                            if (tripIds[elem.trip_id]) {
-
-                                if (!$.isArray(stopIdByMission[tripIds[elem.trip_id]])) {
-                                    stopIdByMission[tripIds[elem.trip_id]] = [];
-                                }
-
-                                if (!inArray(stopIdByMission[tripIds[elem.trip_id]], elem.stop_id)) {
-                                    stopIdByMission[tripIds[elem.trip_id]].push(elem.stop_id);
-                                }
-
-                            }
-
-                        });
-
-                        console.log('stopIdByMission', stopIdByMission);
-
-                        deferred.notify('Find stops and missions.');
-
-                        getRows(stopsFile, function (stopsRows) {
-
-                            var poiAnchor;
-
-                            //Put poi in mission's pois array & pois array
-                            $.grep(stopsRows, function (elem) {
-
-                                var shapeId = inArrayDeep(stopIdByMission, elem.stop_id);
-
-                                if (shapeId) {
-
-                                    //If poi already in pois don't go further
-                                    if (!pois[elem.stop_id]) {
-
-                                        pois[elem.stop_id] = {
-                                            uri: startUri + ':stop:' + lowerString(elem.stop_id),
-                                            name: elem.stop_name,
-                                            latitude: elem.stop_lat,
-                                            longitude: elem.stop_lon
-                                        };
-                                    }
-
-                                    //Put poi in the mission stops array
-
-                                    if (!missions[shapeId] || !$.isArray(missions[shapeId].pois)) {
-
-                                        missions[shapeId] = {};
-
-                                        missions[shapeId].uri = startUri + ':mission:' + lowerString(shapeId);
-                                        missions[shapeId].name = shapeId;
-                                        missions[shapeId].meta = "";
-                                        missions[shapeId].desc = "";
-
-                                        missions[shapeId].pois = [];
-                                    }
-
-                                    poiAnchor = {};
-                                    poiAnchor[startUri + ":stop:" + lowerString(elem.stop_name)] = [];
-
-                                    missions[shapeId].pois.push(poiAnchor);
-
-                                }
-
-                            });
-
-                            deferred.notify('Find shapes.');
-
-
-                            //Build shapes object
-
-                            deferred.notify('There are shapes');
-
-                            getRows(shapesFile, function (shapesRows) {
-
-                                $.grep(shapesRows, function (elem) {
-
-                                    if (inArray(shapeIds, elem.shape_id)) {
-
-                                        //Save shape's points
-
-                                        if (!shapes[elem.shape_id] || !$.isArray(shapes[elem.shape_id].points)) {
-
-                                            shapes[elem.shape_id] = {};
-
-                                            shapes[elem.shape_id].uri = startUri
-                                                + ":shape:"
-                                                + lowerString(String(elem.shape_id));
-                                            shapes[elem.shape_id].desc = "";
-                                            shapes[elem.shape_id].meta = "";
-
-                                            shapes[elem.shape_id].points = [];
-
-                                        }
-
-                                        shapes[elem.shape_id].points.push({
-                                            latitude: elem.shape_pt_lat,
-                                            longitude: elem.shape_pt_lon
-                                        });
-
-                                    }
-
-                                });
-
-                                convertAndSend(pois, shapes, missions, deferred);
-
-                            });
-
-
-                        });
-
-
-                    });
-
-                });
-
-            };
-
-            var workWithoutShapes = function (deferred) {
-
                 /**
-                 *
-                 * 0- init objects
-                 *    pois = {}
-                 *    shapes = {}
-                 *    mission = {}
-                 * 
-                 * 1- get trips for routes
-                 *     stopTimesByTrip = {
-                 *         tripID = []
-                 *     }
-                 * 
-                 * 2- put each interesting stopTimes in the good trip array
-                 *    stopTimesByTrip[elem.trip_id].push()
-                 *
-                 * 3- compare each stopTimesByTrip array
-                 *    1- create new shape[startUri + ':shape:' + tripId] with info
-                 *       and push all stopId in temp stopId key
-                 *    2- create new mission[startUri + ':shape:' + tripId] with info
-                 *
-                 * 4- for each stop
-                 *    var shapeId = stop_id in array deep shapes;
-                 *    if (shapeId) {
-                 *       1- push in pois
-                 *       2- push in shapes[shapeId].points
-                 *       3- push in missions[shapeId].pois
-                 *    }
-                 * 
+                 * stopTimesByTrip
+                 * @type {Object}
+                    {
+                        tripId : [stopTimeId, ..., stopTimeId],
+                        ...
+                    }
                  */
-
-                deferred.notify('No shapes given :( ');
-
-                var startUri = lowerString(accountService.get('uri')) + ":" + lowerString(accountService.get('networkName'));
-
-                var tripsFile     = allFiles.getTrips(),
-                    stopTimesFile = allFiles.getStopTimes(),
-                    stopsFile     = allFiles.getStops();
-
-                var shapes = {}, //shapes object
-                    pois = {}, //pois object
-                    missions = {}; //missions object
-
                 var stopTimesByTrip = {};
 
+                /**
+                 * tripsByShape
+                 * @type {Object}
+                    {
+                        shapeId : [tripId, tripId]
+                    }
+                 */
+                var tripsByShape = {};
+
+
                 deferred.notify('Find trips for routes');
 
                 //Get all trips linked with routeID
@@ -458,9 +260,22 @@
 
                     //Get trips linked with this route
                     $.grep(tripsRows, function (elem) {
+
+                        //Create a stopTimes array
                         if (inArray(routeIds, elem.route_id)) {
                             stopTimesByTrip[elem.trip_id] = [];
+
+                            //Save shape <-> trip link
+                            if (shapesGiven && elem.shape_id !== undefined) {
+
+                                if (!$.isArray(tripsByShape[elem.shape_id])) {
+                                    tripsByShape[elem.shape_id] = [];
+                                }
+
+                                tripsByShape[elem.shape_id].push(elem.trip_id);
+                            }
                         }
+
                     });
 
                     //Get all stopId that we need
@@ -478,20 +293,20 @@
 
                         var uniqueTrips = uniqueChildren(stopTimesByTrip);
 
-                        //Defined 1 shape and 1 mission for one unique trip
+                        //Define 1 shape and 1 mission for one unique trip
 
                         var trip;
                         for (trip in uniqueTrips) {
                             if (uniqueTrips.hasOwnProperty(trip)) {
 
-                                shapes[startUri + ':shape:' + lowerString(trip)] = {
+                                shapes[trip] = {
                                     uri : startUri + ':shape:' + lowerString(trip),
                                     desc : "",
                                     meta : "",
                                     points : []
                                 };
 
-                                missions[startUri + ':shape:' + lowerString(trip)] = {
+                                missions[trip] = {
                                     uri : startUri + ':mission:' + lowerString(trip),
                                     name : trip,
                                     desc : "",
@@ -499,11 +314,12 @@
                                     pois : []
                                 };
 
-                                shapes[startUri + ':shape:' + lowerString(trip)].points = $.extend([], uniqueTrips[trip]);
-                                missions[startUri + ':shape:' + lowerString(trip)].pois = $.extend([], uniqueTrips[trip]);
+                                shapes[trip].points = $.extend([], uniqueTrips[trip]);
+                                missions[trip].pois = $.extend([], uniqueTrips[trip]);
 
                             }
                         }
+
 
                         var shapeIDs,
                             poiAnchor;
@@ -548,11 +364,57 @@
                                         }
 
                                     });
-
                                 }
+
                             });
 
-                            convertAndSend(pois, shapes, missions, deferred);
+                            //If shapes, use to improve the shapes objects
+                            if (shapesGiven) {
+
+                                getRows(shapesFile, function (shapesRows) {
+
+                                    var trips;
+
+                                    $.grep(shapesRows, function (elem) {
+
+                                        trips = tripsByShape[elem.shape_id];
+
+                                        if (trips !== undefined) {
+
+                                            $.each(trips, function (index, trip) {
+
+                                                if (uniqueTrips[trip] !== undefined) {
+
+                                                    if (!shapes[trip].shapeImprovement) {
+
+                                                        shapes[trip].shapeImprovement = true; //add temp key
+                                                        shapes[trip].points = [];
+                                                    }
+
+                                                    shapes[trip].points.push({
+                                                        latitude: elem.shape_pt_lat,
+                                                        longitude: elem.shape_pt_lon
+                                                    });
+
+                                                }
+
+                                            });
+                                        }
+
+                                    });
+
+                                    //delete temp key
+                                    $.each(shapes, function (index, shape) {
+                                        delete shape.shapeImprovement;
+                                    });
+
+                                    convertAndSend(pois, shapes, missions, deferred);
+                                });
+
+
+                            } else {
+                                convertAndSend(pois, shapes, missions, deferred);
+                            }
 
                         });
 
@@ -617,9 +479,9 @@
                     $timeout(function () {
 
                         if (allFiles['shapes.txt'] !== null) {
-                            workWithShapes(deferred);
+                            workOnFiles(deferred, true);
                         } else {
-                            workWithoutShapes(deferred);
+                            workOnFiles(deferred, false);
                         }
 
                     }, 0);
