@@ -24,20 +24,6 @@
 
             };
 
-            /**
-             * saveFile
-             *
-             * Just a tool to save json that will be send to server
-             * 
-             * @param  {String} filename 
-             * @param  {String} text     
-             */
-            var saveFile = function (filename, text) {
-                var pom = document.createElement('a');
-                pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-                pom.setAttribute('download', filename);
-                pom.click();
-            };
 
             var inArray = function (array, elem) {
                 return array.indexOf(elem) > -1 ? true : false;
@@ -85,21 +71,6 @@
                 reader.onloadend = callback;
             };
 
-            var objectToArray = function (object) {
-
-                var array = [],
-                    key;
-
-                for (key in object) {
-                    if (object.hasOwnProperty(key)) {
-
-                        array.push(object[key]);
-                    }
-                }
-
-                return array;
-            };
-
             /**
              * getRows
              *
@@ -122,6 +93,21 @@
             };
 
             /**
+             * saveFile
+             *
+             * Just a tool to save json that will be send to server
+             * 
+             * @param  {String} filename 
+             * @param  {String} text     
+             */
+            var saveFile = function (filename, text) {
+                var pom = document.createElement('a');
+                pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                pom.setAttribute('download', filename);
+                pom.click();
+            };
+
+            /**
              * areArraysEquals
              *
              * @param  {Array} arr1
@@ -130,6 +116,19 @@
              */
             var areArraysEquals = function (arr1, arr2) {
                 return $(arr1).not(arr2).length === 0 && $(arr2).not(arr1).length === 0;
+            };
+
+            /**
+             * sortBySequence
+             *
+             * Used with array.sort(function)
+             * 
+             * @param  {object} a
+             * @param  {object} b
+             */
+            var sortBySequence = function (a, b) {
+
+                return a.sequence - b.sequence;
             };
 
             /**
@@ -193,6 +192,40 @@
 
             };
 
+            /**
+             * objectToArray
+             *
+             * Convert an objet to array by removing the key
+             * 
+             * @param  {Object} object
+             * @return {Array}        
+             */
+            var objectToArray = function (object) {
+
+                var array = [],
+                    key;
+
+                for (key in object) {
+                    if (object.hasOwnProperty(key)) {
+
+                        array.push(object[key]);
+                    }
+                }
+
+                return array;
+            };
+
+            /**
+             * convertAndSend
+             *
+             * Convert objects into array in order to be ready to push
+             * Resolve the deferred
+             * 
+             * @param  {object} pois     
+             * @param  {object} shapes   
+             * @param  {object} missions 
+             * @param  {object} deferred 
+             */
             var convertAndSend = function (pois, shapes, missions, deferred) {
 
                 deferred.notify('Convert to array.');
@@ -213,6 +246,14 @@
             };
 
 
+            /**
+             * workOnFiles
+             *
+             * Parse the GTFS
+             * 
+             * @param  {object} deferred    a $q.defer()
+             * @param  {boolean} shapesGiven 
+             */
             var workOnFiles = function (deferred, shapesGiven) {
 
                 if (shapesGiven) {
@@ -220,7 +261,6 @@
                 } else {
                     deferred.notify('No shapes given :( ');
                 }
-
 
                 var startUri = lowerString(accountService.get('uri')) + ":" + lowerString(accountService.get('networkName'));
 
@@ -286,10 +326,29 @@
 
                             //Save stop_id
                             if ($.isArray(stopTimesByTrip[elem.trip_id])) {
-                                stopTimesByTrip[elem.trip_id].push(elem.stop_id);
+                                stopTimesByTrip[elem.trip_id].push({
+                                    id: elem.stop_id,
+                                    sequence: elem.stop_sequence
+                                });
                             }
 
                         });
+
+                        //Sort stops by sequence
+                        $.each(stopTimesByTrip, function (index, trip) {
+                            trip.sort(sortBySequence);
+                        });
+
+                        //Transform object in array
+                        var key, i;
+                        for (key in stopTimesByTrip) {
+                            if (stopTimesByTrip.hasOwnProperty(key)) {
+
+                                for (i = 0; i < stopTimesByTrip[key].length; i++) {
+                                    stopTimesByTrip[key][i] = stopTimesByTrip[key][i].id;
+                                }
+                            }
+                        }
 
                         var uniqueTrips = uniqueChildren(stopTimesByTrip);
 
