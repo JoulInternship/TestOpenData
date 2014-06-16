@@ -45,7 +45,7 @@ var csvjson = {};
 		// Unused
 		//var textdelim = isdef(args.textdelim) ? args.textdelim : "";
 
-		var csvlines = csvdata.split("\r\n");
+		var csvlines = csvdata.split(/\n/);
 		var csvheaders = splitCSV(csvlines[0], delim);
 		var csvrows = csvlines.slice(1, csvlines.length);
 
@@ -67,9 +67,9 @@ var csvjson = {};
 						var item = rowitems[i];
 
 						// Try to (intelligently) cast the item to a number, if applicable
-						if(!isNaN(item*1)) {
+						/*if(!isNaN(item*1)) {
 							item = item*1;
-						}
+						}*/
 
 						rowob[csvheaders[i]] = item;
 					}
