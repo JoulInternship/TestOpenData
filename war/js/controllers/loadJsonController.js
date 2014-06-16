@@ -8,9 +8,9 @@
         'zenbusService',
         function ($scope, zenbusService) {
 
-            var reader = new FileReader();
-
             $scope.onFileSelect = function (files) {
+
+                var reader = new FileReader();
 
                 var jsonFile = files[0];
 
