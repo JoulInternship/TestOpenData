@@ -8,6 +8,8 @@
         'zenbusService',
         function ($scope, zenbusService) {
 
+            var gtfsData = null;
+
             $scope.onFileSelect = function (files) {
 
                 var reader = new FileReader();
@@ -19,22 +21,28 @@
 
                     var json = e.target.result;
 
-                    var data = JSON.parse(json);
+                    gtfsData = JSON.parse(json);
 
                     $scope.$apply(function () {
-                        $scope.pois = data.pois;
-                        $scope.shapes = data.shapes;
+                        $scope.pois = gtfsData.pois;
+                        $scope.shapes = gtfsData.shapes;
                         $scope.center = {
-                            latitude: data.pois[0].latitude,
-                            longitude: data.pois[0].longitude
+                            latitude: gtfsData.pois[0].latitude,
+                            longitude: gtfsData.pois[0].longitude
                         };
                     });
 
-                    zenbusService.sendData(data);
 
                 };
             };
 
+            $scope.sendData = function () {
+                if (gtfsData) {
+                    zenbusService.sendData(gtfsData);
+                } else {
+                    console.log("error, no data");
+                }
+            };
         }
     ]);
 

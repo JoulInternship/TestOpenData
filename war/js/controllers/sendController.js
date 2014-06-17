@@ -12,10 +12,20 @@
         'zenbusService',
         function ($scope, $rootScope, $location, $timeout, parsingService, zenbusService) {
 
+            var gtfsData = null;
+
             $rootScope.loading = 0;
 
             $rootScope.loading = 100;
             $rootScope.loadingMsg = "Traitement des fichiers GTFS en cours. L'opération peut durer quelques minutes ...";
+
+            $scope.sendData = function () {
+                if (gtfsData) {
+                    zenbusService.sendData(gtfsData);
+                } else {
+                    console.log("error, no data");
+                }
+            };
 
             var redirect = function () {
                 $location.url('/files');
@@ -33,14 +43,14 @@
                     promise.then(
                         function (data) {
 
+                            gtfsData = data;
+
                             $scope.shapes = data.shapes;
                             $scope.pois = data.pois;
                             $scope.center = {
                                 latitude: data.pois[0].latitude,
                                 longitude: data.pois[0].longitude
                             };
-
-                            zenbusService.sendData(data);
 
                             $rootScope.loading = 0;
 
